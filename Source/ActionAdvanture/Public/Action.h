@@ -1,0 +1,62 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Action.generated.h"
+
+/**
+ * Actions are performed according to the tag conditions.
+ * Actions are similar GameAbility of GameAbilitySystem.
+ * References: https://github.com/tomlooman/ActionRoguelike, https://docs.unrealengine.com/4.26/en-US/InteractiveExperiences/GameplayAbilitySystem/
+ */
+
+class UActionSystemComponent;
+
+UCLASS(Blueprintable)
+class ACTIONADVANTURE_API UAction : public UObject
+{
+	GENERATED_BODY()
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer ActiveTags;
+
+	/* Action can only start if OwningActor has none of these Tags applied*/
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer BlockedTags;
+	
+	bool bIsRunning;
+
+	/* cache data*/
+
+	AActor* Owner;
+	
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	AActor* GetOwner() const { return Owner; };
+
+	UActionSystemComponent* OwnerActionSystem;
+	
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	UActionSystemComponent* GetOwnerActionSystem() const { return OwnerActionSystem; };
+
+public:
+	void Initialize(UActionSystemComponent* ActionSystemComponent);
+
+	//NOTE: Use BlockedTags instead of CanStart whenever possible
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	bool CanStart(AActor* Instigator) const;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	void StartAction(AActor* Instigator);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	void StopAction(AActor* Instigator);
+
+	const FGameplayTagContainer& GetBlockTags() const{ return BlockedTags; }
+	const FGameplayTagContainer& GetActiveTags() const{ return ActiveTags; }
+
+	bool IsRunning() const{ return bIsRunning; };
+};
