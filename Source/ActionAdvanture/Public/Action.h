@@ -42,8 +42,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UActionSystemComponent* GetOwnerActionSystem() const { return OwnerActionSystem; };
 
+	/* Action nickname to start/stop without a reference to the object */
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	FName ActionName;
+
 public:
 	void Initialize(UActionSystemComponent* ActionSystemComponent);
+
+	UFUNCTION(BlueprintPure, Category = "Action")
+	FName const& GetActionName() const { return ActionName; };
 
 	//NOTE: Use BlockedTags instead of CanStart whenever possible
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")

@@ -4,6 +4,7 @@
 #include "Action.h"
 #include "ActionSystemComponent.h"
 #include "CommonUtils.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 UActionSystemComponent::UActionSystemComponent()
@@ -14,6 +15,10 @@ UActionSystemComponent::UActionSystemComponent()
 void UActionSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	for (TSubclassOf<UAction> ActionClass : DefaultActions)
+	{
+		AddAction(ActionClass, GetOwner());
+	}
 }
 
 bool UActionSystemComponent::IsBlockedWith(FGameplayTagContainer const& BlockTags) const
@@ -26,16 +31,21 @@ bool UActionSystemComponent::IsBlockedWith(FGameplayTagContainer const& BlockTag
 	return false;
 }
 
-void UActionSystemComponent::AddAction(UAction* Action)
+void UActionSystemComponent::AddAction(TSubclassOf<UAction> ActionClass, AActor* Instigator)
 {
-	condition(Action);
-	Actions.Add(Action->GetUniqueID(),Action);
+	condition(ActionClass);
+	UAction* Default = ActionClass->GetDefaultObject<UAction>();
+	conditionf(!Actions.Find(Default->GetActionName()), TEXT("AddAction Failed!: Action %s already exist in ActionSystemComponent"), *Default->GetActionName().ToString());
+	
+	UAction* Action = NewObject<UAction>(GetOwner(), ActionClass);
+	Actions.Add(Action->GetActionName(),Action);
 	Action->Initialize(this);
 }
 
-bool UActionSystemComponent::StartAction(UAction* Action, AActor* Instigator = nullptr)
+bool UActionSystemComponent::StartActionByName(FName ActionName, AActor* Instigator = nullptr)
 {
-	conditionb(Action);
+	conditionb(Actions.Contains(ActionName));
+	UAction* Action = Actions[ActionName];
 	if (!Action->CanStart(Instigator))
 		return false;
 
@@ -43,9 +53,10 @@ bool UActionSystemComponent::StartAction(UAction* Action, AActor* Instigator = n
 	return true;
 }
 
-bool UActionSystemComponent::StopAction(UAction* Action, AActor* Instigator = nullptr)
+bool UActionSystemComponent::StopActionByName(FName ActionName, AActor* Instigator = nullptr)
 {
-	conditionb(Action);
+	conditionb(Actions.Contains(ActionName));
+	UAction* Action = Actions[ActionName];
 	if (Action->IsRunning())//TODO: create UAction::CanStop()
 	{
 		Action->StopAction(Instigator);

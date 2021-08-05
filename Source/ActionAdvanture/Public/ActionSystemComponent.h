@@ -22,20 +22,24 @@ protected:
 	TSet<FName> ActiveTags;
 
 	UPROPERTY(VisibleAnywhere)
-	TMap<uint32, UAction*> Actions;
+	TMap<FName, UAction*> Actions;
 
 	virtual void BeginPlay() override;
 
+	/* Granted abilities at game start */
+	UPROPERTY(EditAnywhere, Category = "Actions")
+	TArray<TSubclassOf<UAction>> DefaultActions;
+
 public:	
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void AddAction(UAction* Action);
+	void AddAction(TSubclassOf<UAction> ActionClass, AActor* Instigator);
+	
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool StartActionByName(FName ActionName, AActor* Instigator);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool StartAction(UAction* Action, AActor* Instigator);
-	
-	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool StopAction(UAction* Action, AActor* Instigator);
-	
+	bool StopActionByName(FName ActionName, AActor* Instigator);
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void ActivateTags(FGameplayTagContainer const& Tags);
 	

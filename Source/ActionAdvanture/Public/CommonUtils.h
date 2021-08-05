@@ -20,14 +20,14 @@ struct ACTIONADVANTURE_API CommonUtils
 	/*If we use template metaprogramming, it is expressed as a single function, but we can't display the variable name, so we do hard-coding macros.*/
 
 	//example: condition2_return(condition1, condition2, false);
-	#define condition_return(c, ReturnValue)									{if(!ensure(c))/*for profiling*/\
+	#define condition_return(c, ReturnValue)									{if(!ensureAlways(c))/*for profiling*/\
 																						return ReturnValue;}
 	#define condition2_return(c1, c2, ReturnValue)								condition_return(c1, ReturnValue); condition_return(c2, ReturnValue);
 	#define condition3_return(c1, c2, c3, ReturnValue)							condition_return(c1, ReturnValue); condition2_return(c2, c3, ReturnValue);
 	#define condition4_return(c1, c2, c3, c4, ReturnValue)						condition_return(c1, ReturnValue); condition3_return(c2, c3, c4, ReturnValue);
 
 	//example: conditionf2_return(condition1, condition2, TEXT("Hello"));
-	#define conditionf_return(c, ReturnValue, InFormat, ...)					{if(!ensureMsgf(c, InFormat, ##__VA_ARGS__))/*for profiling*/\
+	#define conditionf_return(c, ReturnValue, InFormat, ...)					{if(!ensureAlwaysMsgf(c, InFormat, ##__VA_ARGS__))/*for profiling*/\
 																							return ReturnValue;}
 	#define conditionf2_return(c1, c2, ReturnValue, InFormat, ...)				conditionf_return(c1, ReturnValue, InFormat, ##__VA_ARGS__); conditionf_return(c2, ReturnValue, InFormat, ##__VA_ARGS__);
 	#define conditionf3_return(c1, c2, c3, ReturnValue, InFormat, ...)			conditionf_return(c1, ReturnValue, InFormat, ##__VA_ARGS__); conditionf2_return(c2, c3, ReturnValue, InFormat, ##__VA_ARGS__);
