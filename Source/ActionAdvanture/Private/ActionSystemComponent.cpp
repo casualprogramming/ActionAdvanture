@@ -34,7 +34,7 @@ bool UActionSystemComponent::IsBlockedWith(FGameplayTagContainer const& BlockTag
 void UActionSystemComponent::AddAction(TSubclassOf<UAction> ActionClass, AActor* Instigator)
 {
 	condition(ActionClass);
-	UAction* Default = ActionClass->GetDefaultObject<UAction>();
+	#define Default ActionClass->GetDefaultObject<UAction>()
 	conditionf(!Actions.Find(Default->GetActionName()), TEXT("AddAction Failed!: Action %s already exist in ActionSystemComponent"), *Default->GetActionName().ToString());
 	
 	UAction* Action = NewObject<UAction>(GetOwner(), ActionClass);

@@ -18,26 +18,23 @@ UCLASS(Blueprintable)
 class ACTIONADVANTURE_API UAction : public UObject
 {
 	GENERATED_BODY()
+private:
+	/* cache data*/
+	AActor* Owner;
+	UActionSystemComponent* OwnerActionSystem;
 
+	//true at StartAction, false at StopAction
+	bool bIsRunning;
 protected:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer ActiveTags;
 
 	/* Action can only start if OwningActor has none of these Tags applied*/
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
-	
-	bool bIsRunning;
 
-	/* cache data*/
-
-	AActor* Owner;
-	
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	AActor* GetOwner() const { return Owner; };
-
-	UActionSystemComponent* OwnerActionSystem;
 	
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UActionSystemComponent* GetOwnerActionSystem() const { return OwnerActionSystem; };
@@ -47,14 +44,14 @@ protected:
 	FName ActionName;
 
 public:
-	void Initialize(UActionSystemComponent* ActionSystemComponent);
+	virtual void Initialize(UActionSystemComponent* ActionSystemComponent);
 
 	UFUNCTION(BlueprintPure, Category = "Action")
 	FName const& GetActionName() const { return ActionName; };
 
 	//NOTE: Use BlockedTags instead of CanStart whenever possible
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
-	bool CanStart(AActor* Instigator) const;
+	bool CanStart(AActor* Instigator);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StartAction(AActor* Instigator);

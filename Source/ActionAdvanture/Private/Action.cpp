@@ -13,7 +13,7 @@ void UAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 	condition2(Owner, OwnerActionSystem);
 }
 
-bool UAction::CanStart_Implementation(AActor* Instigator) const
+bool UAction::CanStart_Implementation(AActor* Instigator)
 {
 	conditionb2(Owner, OwnerActionSystem);
 	return (!OwnerActionSystem->IsBlockedWith(GetBlockTags())) && !bIsRunning;
