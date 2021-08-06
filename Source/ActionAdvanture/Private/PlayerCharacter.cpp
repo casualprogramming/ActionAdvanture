@@ -4,6 +4,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "ActionSystemComponent.h"
 #include "CommonUtils.h"
 
 // Sets default values
@@ -19,6 +20,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	ActionSystemComp = CreateDefaultSubobject<UActionSystemComponent>("ActionSystemComp");
 }
 
 // Called when the game starts or when spawned

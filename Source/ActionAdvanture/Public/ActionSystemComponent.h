@@ -31,9 +31,11 @@ protected:
 	TArray<TSubclassOf<UAction>> DefaultActions;
 
 public:	
+	/*	To start an Action, you need to register the Action. 
+		It is recommended to use class default, If you want to instantiate the same class within one actor, use forcedname to avoid collision of Action Map.*/
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void AddAction(TSubclassOf<UAction> ActionClass, AActor* Instigator);
-	
+	void RegisterAction(TSubclassOf<UAction> ActionClass, AActor* Instigator, FName ForcedActionName="");
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool StartActionByName(FName ActionName, AActor* Instigator);
 
@@ -48,4 +50,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool IsBlockedWith(FGameplayTagContainer const& BlockTags) const;
+
+	bool IsRegisteredAction(FName ActionName) const { return bool(Actions.Find(ActionName)); }
+
+	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
 };

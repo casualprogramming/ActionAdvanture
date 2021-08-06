@@ -17,7 +17,7 @@ void UActionSystemComponent::BeginPlay()
 	Super::BeginPlay();
 	for (TSubclassOf<UAction> ActionClass : DefaultActions)
 	{
-		AddAction(ActionClass, GetOwner());
+		RegisterAction(ActionClass, GetOwner());
 	}
 }
 
@@ -31,13 +31,13 @@ bool UActionSystemComponent::IsBlockedWith(FGameplayTagContainer const& BlockTag
 	return false;
 }
 
-void UActionSystemComponent::AddAction(TSubclassOf<UAction> ActionClass, AActor* Instigator)
+void UActionSystemComponent::RegisterAction(TSubclassOf<UAction> ActionClass, AActor* Instigator, FName ForcedActionName)
 {
 	condition(ActionClass);
-	#define Default ActionClass->GetDefaultObject<UAction>()
-	conditionf(!Actions.Find(Default->GetActionName()), TEXT("AddAction Failed!: Action %s already exist in ActionSystemComponent"), *Default->GetActionName().ToString());
-	
 	UAction* Action = NewObject<UAction>(GetOwner(), ActionClass);
+	if(!(ForcedActionName==""))
+		Action->SetActionName(ForcedActionName);
+	conditionf(!Actions.Find(Action->GetActionName()), TEXT("AddAction Failed!: Action %s already exist in ActionSystemComponent"), *Action->GetActionName().ToString());
 	Actions.Add(Action->GetActionName(),Action);
 	Action->Initialize(this);
 }

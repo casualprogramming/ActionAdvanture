@@ -12,7 +12,35 @@
  * References: https://github.com/tomlooman/ActionRoguelike, https://docs.unrealengine.com/4.26/en-US/InteractiveExperiences/GameplayAbilitySystem/
  */
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCanStart, AActor*, Instigator);
+
 class UActionSystemComponent;
+
+USTRUCT(Atomic, BlueprintType)
+struct FChildActionDesc
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UAction> ActionClass;
+
+	/* Check CanStart in parent. Affects the parent's CanStart. If set to false, Do not Affects the parent's CanStart and this action's CanStart() will be called when the parent Start() is called.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCallCanStartAtParent;
+
+	/* Add the action name after the parent name. Thanks to the new name, the action is identified and instantiated.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bInstancingWithParentName = true;
+
+	/* The action stops when the parent action stops. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSyncActionStopWithParent = true;
+
+	//Available after Initialize
+	UPROPERTY(BlueprintReadOnly)
+	class UAction* Action;
+};
+
 
 UCLASS(Blueprintable)
 class ACTIONADVANTURE_API UAction : public UObject
@@ -43,11 +71,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Actions")
+	TArray<FChildActionDesc> ChildActionsClass;
+
 public:
+
+	//Rename forcibly when you want to use an instance different from the class default.
+	void SetActionName(FName name) { ActionName = name; }
+
 	virtual void Initialize(UActionSystemComponent* ActionSystemComponent);
 
 	UFUNCTION(BlueprintPure, Category = "Action")
-	FName const& GetActionName() const { return ActionName; };
+	FName GetActionName() const { return ActionName; };
 
 	//NOTE: Use BlockedTags instead of CanStart whenever possible
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
@@ -63,4 +98,8 @@ public:
 	const FGameplayTagContainer& GetActiveTags() const{ return ActiveTags; }
 
 	bool IsRunning() const{ return bIsRunning; };
+
+
 };
+
+

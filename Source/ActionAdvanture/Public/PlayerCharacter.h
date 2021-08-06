@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* CameraComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class UActionSystemComponent* ActionSystemComp;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
