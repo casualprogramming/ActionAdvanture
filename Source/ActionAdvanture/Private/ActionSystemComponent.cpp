@@ -21,16 +21,6 @@ void UActionSystemComponent::BeginPlay()
 	}
 }
 
-bool UActionSystemComponent::IsBlockedWith(FGameplayTagContainer const& BlockTags) const
-{
-	for (auto const& Tag : BlockTags)
-	{
-		if (ActiveTags.Find(Tag.GetTagName()))
-			return true;
-	}
-	return false;
-}
-
 void UActionSystemComponent::RegisterAction(TSubclassOf<UAction> ActionClass, AActor* Instigator, FName ForcedActionName)
 {
 	condition(ActionClass);
@@ -42,27 +32,25 @@ void UActionSystemComponent::RegisterAction(TSubclassOf<UAction> ActionClass, AA
 	Action->Initialize(this);
 }
 
-bool UActionSystemComponent::StartActionByName(FName ActionName, AActor* Instigator = nullptr)
+void UActionSystemComponent::StartActionByName(FName ActionName, AActor* Instigator = nullptr)
 {
-	conditionb(Actions.Contains(ActionName));
+	conditionf(Actions.Contains(ActionName), TEXT("Action: \"%s\" is not in ActionSystemComponent"), *ActionName.ToString());
 	UAction* Action = Actions[ActionName];
-	if (!Action->CanStart(Instigator))
-		return false;
-
-	Action->StartAction(Instigator);
-	return true;
+	Action->CommitStartAction(Instigator);
 }
 
-bool UActionSystemComponent::StopActionByName(FName ActionName, AActor* Instigator = nullptr)
+void UActionSystemComponent::StopActionByName(FName ActionName, AActor* Instigator = nullptr)
 {
-	conditionb(Actions.Contains(ActionName));
+	conditionf(Actions.Contains(ActionName), TEXT("Action: \"%s\" is not in ActionSystemComponent"), *ActionName.ToString());
 	UAction* Action = Actions[ActionName];
-	if (Action->IsRunning())//TODO: create UAction::CanStop()
-	{
-		Action->StopAction(Instigator);
-		return true;
-	}
-	return false;
+	Action->CommitStopAction(Instigator, false);
+}
+
+void UActionSystemComponent::CancelActionByName(FName ActionName, AActor* Instigator = nullptr)
+{
+	conditionf(Actions.Contains(ActionName), TEXT("%s is not in ActionSystemComponent"), *ActionName.ToString());
+	UAction* Action = Actions[ActionName];
+	Action->CommitStopAction(Instigator, true);
 }
 
 void UActionSystemComponent::ActivateTags(FGameplayTagContainer const& Tags)
@@ -75,6 +63,39 @@ void UActionSystemComponent::DeactivateTags(FGameplayTagContainer const& Tags)
 {
 	for (auto const& Tag : Tags)
 		ActiveTags.Remove(Tag.GetTagName());
+}
+
+bool UActionSystemComponent::HasAny(FGameplayTagContainer const& Tags) const
+{
+	for (auto const& Tag : Tags)
+	{
+		if (ActiveTags.Find(Tag.GetTagName()))
+			return true;
+	}
+	return false;
+}
+
+bool UActionSystemComponent::HasAll(FGameplayTagContainer const& Tags) const
+{
+	for (auto const& Tag : Tags)
+	{
+		if (!ActiveTags.Find(Tag.GetTagName()))
+			return false;
+	}
+	return true;
+}
+
+bool UActionSystemComponent::SatisfyTagRequirements(const UAction* Action) const
+{
+	return !HasAny(Action->GetBlockTags()) && HasAll(Action->GetRequiredTags());
+}
+
+void UActionSystemComponent::CancelAllAction(AActor* Instigator)
+{
+	for (auto& Action: Actions)
+	{
+		Action.Value->CommitStopAction(Instigator, true);
+	}
 }
 
 

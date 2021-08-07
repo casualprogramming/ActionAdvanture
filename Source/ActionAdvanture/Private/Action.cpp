@@ -33,10 +33,23 @@ void UAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 	}
 }
 
+void UAction::CommitStartAction(AActor* Instigator)
+{
+	if (CanStart(Instigator))
+		StartAction(Instigator);
+}
+
+void UAction::CommitStopAction(AActor* Instigator, bool bCancel)
+{
+	UE_LOG(LogTemp, Log, TEXT("CommitStopAction %s."), *GetActionName().ToString());
+	if (bIsRunning)
+		StopAction(Instigator, bCancel);
+}
+
 bool UAction::CanStart_Implementation(AActor* Instigator)
 {
 	conditionb2(Owner, OwnerActionSystem);
-	if (OwnerActionSystem->IsBlockedWith(GetBlockTags()) || bIsRunning) return false;
+	if (!OwnerActionSystem->SatisfyTagRequirements(this) || bIsRunning) return false;
 	//When a child's CanStart affects the parent
 	for (auto const& Child : ChildActionsClass)
 	{
@@ -70,7 +83,7 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 	}
 }
 
-void UAction::StopAction_Implementation(AActor* Instigator)
+void UAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	condition2(Owner, OwnerActionSystem);
 	bIsRunning = false;
@@ -78,7 +91,7 @@ void UAction::StopAction_Implementation(AActor* Instigator)
 
 	//Stop Child
 	for (auto const& Child : ChildActionsClass)
-		if(Child.Action->IsRunning() && Child.bSyncActionStopWithParent)
-			Child.Action->StopAction(Instigator);
+		if(Child.bSyncActionStopWithParent)
+			Child.Action->CommitStopAction(Instigator, bCancel);
 }
 

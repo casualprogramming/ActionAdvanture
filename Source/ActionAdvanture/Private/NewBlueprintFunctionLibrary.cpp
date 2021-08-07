@@ -8,3 +8,8 @@ UAction* UNewBlueprintFunctionLibrary::GetDefaultActionClass(TSubclassOf<UAction
 {
 	return Class->GetDefaultObject<UAction>();
 }
+
+FName UNewBlueprintFunctionLibrary::GetDefaultActionName(TSubclassOf<UAction> Class)
+{
+	return Class->GetDefaultObject<UAction>()->GetActionName();
+}

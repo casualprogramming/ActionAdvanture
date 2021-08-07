@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "NewBlueprintFunctionLibrary.h"
 #include "ActionSystemComponent.generated.h"
 
 class UAction;
@@ -37,10 +38,13 @@ public:
 	void RegisterAction(TSubclassOf<UAction> ActionClass, AActor* Instigator, FName ForcedActionName="");
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool StartActionByName(FName ActionName, AActor* Instigator);
+	void StartActionByName(FName ActionName, AActor* Instigator);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool StopActionByName(FName ActionName, AActor* Instigator);
+	void StopActionByName(FName ActionName, AActor* Instigator);
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void CancelActionByName(FName ActionName, AActor* Instigator);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void ActivateTags(FGameplayTagContainer const& Tags);
@@ -49,9 +53,21 @@ public:
 	void DeactivateTags(FGameplayTagContainer const& Tags);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool IsBlockedWith(FGameplayTagContainer const& BlockTags) const;
+	bool HasAny(FGameplayTagContainer const& BlockTags) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool HasAll(FGameplayTagContainer const& Tags) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool SatisfyTagRequirements(const UAction* Action) const;
 
 	bool IsRegisteredAction(FName ActionName) const { return bool(Actions.Find(ActionName)); }
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void CancelAllAction(AActor* Instigator = nullptr);
+	
 	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
+
+	template<typename T>
+	T* GetAction() const { return Cast<T>(Actions[T::StaticClass()->GetDefaultObject<T>()->GetActionName()]); }
 };

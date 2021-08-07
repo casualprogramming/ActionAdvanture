@@ -27,11 +27,10 @@ protected:
 	FTimerHandle DurationHandle;
 
 	float TimeStarted;
-	void TimerStop(AActor* Instigator);
 public:
 	
 	virtual void StartAction_Implementation(AActor* Instigator) override;
-	virtual void StopAction_Implementation(AActor* Instigator) override;
+	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "ActionEffect")
 	void ExecutePeriodicEffect(AActor* Instigator);

@@ -5,6 +5,12 @@
 #include "CommonUtils.h"
 #include "DrawDebugHelpers.h"
 
+
+UGrabAction::UGrabAction()
+{
+	ActionName = "GrabAction";
+}
+
 void UGrabAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 {
 	Super::Initialize(ActionSystemComponent);
@@ -25,7 +31,6 @@ bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 	FHitResult hit; FCollisionQueryParams params; float const Radius = 100.0f;
 	params.AddIgnoredActor(GetOwner());
 	GetOwner()->GetWorld()->SweepSingleByObjectType(hit, Start, End, FQuat::Identity, ECollisionChannel::ECC_PhysicsBody, FCollisionShape::MakeSphere(Radius), params);
-	UKismetSystemLibrary::PrintString(GetOwner(),"hello");
 
 	DrawDebugCapsule(GetOwner()->GetWorld(), (Start + End) * 0.5f, (End - Start).Size() * 0.5f, Radius, FRotationMatrix::MakeFromZ(End - Start).ToQuat(), hit.GetActor()? FColor::Green: FColor::Red, false, 0.5f);
 
@@ -41,25 +46,32 @@ bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 void UGrabAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	condition4(OwnerAnim, GrabAnim, GrabbedActor, OwnerMesh);
+	condition4(OwnerAnim, GrabMontage, GrabbedActor, OwnerMesh);
 	UPrimitiveComponent* Collider = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
 	condition(Collider);
 	Collider->SetMobility(EComponentMobility::Movable);
 	Collider->SetSimulatePhysics(false);
 
 	//Owner
-	OwnerAnim->Montage_Play(GrabAnim);
+	OwnerAnim->Montage_Play(GrabMontage);
 	GrabbedActor->AttachToComponent(OwnerMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, GrabSocketNameInOwner);
 }
 
-void UGrabAction::StopAction_Implementation(AActor* Instigator)
+
+//case Stop: Throw Notify in Montage calls Stop Action (bCancle = false)
+//case Cancel:
+void UGrabAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
-	Super::StopAction_Implementation(Instigator);
+	Super::StopAction_Implementation(Instigator, bCancel);
 	//TODO: StopAction: Throw Action. Cancel Action.
-	condition2(GrabStopAnim, GrabbedActor);
-	OwnerAnim->Montage_Play(GrabStopAnim);
-	GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+
+	condition2(CancelAnim, GrabbedActor);
+	if (bCancel)
+	{
+		OwnerAnim->Montage_Play(CancelAnim);
+		GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+	}
 	GrabbedActor = nullptr;
 }
 

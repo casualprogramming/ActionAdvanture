@@ -14,9 +14,13 @@ UCLASS()
 class ACTIONADVANTURE_API UNewBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-	
+public:
 	/*It is better not to expose this function, 
 	 *but it is often used because the blueprint class defaults value for UObject (UAction) is not visible.*/
 	UFUNCTION(BlueprintCallable, Category = "NewBlueprintFunction")
 	static UAction* GetDefaultActionClass(TSubclassOf<UAction> Class);
+
+	UFUNCTION(BlueprintCallable, Category = "NewBlueprintFunction")
+	static FName GetDefaultActionName(TSubclassOf<UAction> Class);
+
 };

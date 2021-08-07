@@ -48,7 +48,10 @@ class ACTIONADVANTURE_API UAction : public UObject
 	GENERATED_BODY()
 private:
 	/* cache data*/
+	UPROPERTY()
 	AActor* Owner;
+
+	UPROPERTY()
 	UActionSystemComponent* OwnerActionSystem;
 
 	//true at StartAction, false at StopAction
@@ -60,6 +63,9 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied*/
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer RequiredTags;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	AActor* GetOwner() const { return Owner; };
@@ -73,6 +79,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	TArray<FChildActionDesc> ChildActionsClass;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	void StartAction(AActor* Instigator);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	void StopAction(AActor* Instigator, bool bCancel);
 
 public:
 
@@ -88,17 +100,17 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	bool CanStart(AActor* Instigator);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Action")
-	void StartAction(AActor* Instigator);
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void CommitStartAction(AActor* Instigator);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Action")
-	void StopAction(AActor* Instigator);
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void CommitStopAction(AActor* Instigator, bool bCancel);
 
 	const FGameplayTagContainer& GetBlockTags() const{ return BlockedTags; }
 	const FGameplayTagContainer& GetActiveTags() const{ return ActiveTags; }
+	const FGameplayTagContainer& GetRequiredTags() const { return RequiredTags; }
 
 	bool IsRunning() const{ return bIsRunning; };
-
 
 };
 

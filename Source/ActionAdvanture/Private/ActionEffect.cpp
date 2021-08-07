@@ -13,7 +13,7 @@ void UActionEffect::StartAction_Implementation(AActor* Instigator)
 	if (Duration > 0.0f)
 	{
 		FTimerDelegate Delegate;
-		Delegate.BindUObject(this, &UActionEffect::TimerStop, Instigator);
+		Delegate.BindUObject(this, &UActionEffect::CommitStopAction, Instigator, false);
 
 		GetWorld()->GetTimerManager().SetTimer(DurationHandle, Delegate, Duration, false);
 	}
@@ -27,20 +27,14 @@ void UActionEffect::StartAction_Implementation(AActor* Instigator)
 	}
 }
 
-void UActionEffect::TimerStop(AActor* Instigator)
-{
-	GetOwnerActionSystem()->StopActionByName(GetActionName(), Instigator);
-}
-
-
-void UActionEffect::StopAction_Implementation(AActor* Instigator)
+void UActionEffect::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(PeriodHandle) < KINDA_SMALL_NUMBER)
 	{
 		ExecutePeriodicEffect(Instigator);
 	}
 
-	Super::StopAction_Implementation(Instigator);
+	Super::StopAction_Implementation(Instigator, bCancel);
 	GetWorld()->GetTimerManager().ClearTimer(PeriodHandle);
 	GetWorld()->GetTimerManager().ClearTimer(DurationHandle);
 }
