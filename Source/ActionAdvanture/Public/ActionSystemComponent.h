@@ -20,7 +20,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	TSet<FName> ActiveTags;
+	TMap<FName, uint32> ActiveTagCountMap;
 
 	UPROPERTY(VisibleAnywhere)
 	TMap<FName, UAction*> Actions;

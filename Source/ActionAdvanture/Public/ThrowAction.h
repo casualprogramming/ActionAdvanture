@@ -22,7 +22,9 @@ private:
 	UPROPERTY()
 	class USkeletalMeshComponent* OwnerMesh;
 private:
-	
+	UPROPERTY()
+	AActor* GrabbedActor;
+
 	UPROPERTY(EditAnywhere, Category = "Throw")
 	UAnimMontage* ThrowMontage;
 
@@ -31,13 +33,16 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Throw")
 	float ThrowForce;
+
+	UPROPERTY(EditAnywhere, Category = "Throw")
+	FVector ThrowDirection;
 	
 	UPROPERTY(EditAnywhere, Category = "Throw")
-	float ThrowTime;
+	float Delay;
 
 	FTimerHandle ThrowTimeHandle;
 
-	FScriptDelegate CommitStopDelegate;
+	FOnMontageEnded CommitStopDelegate;
 public:
 	UThrowAction();
 	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;

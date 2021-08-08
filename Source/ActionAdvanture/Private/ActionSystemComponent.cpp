@@ -55,21 +55,32 @@ void UActionSystemComponent::CancelActionByName(FName ActionName, AActor* Instig
 
 void UActionSystemComponent::ActivateTags(FGameplayTagContainer const& Tags)
 {
-	for (auto const& Tag : Tags)
-		ActiveTags.Add(Tag.GetTagName());
+	for (auto const& Tag : Tags.GetGameplayTagParents())
+	{
+		if (ActiveTagCountMap.Find(Tag.GetTagName()))
+			ActiveTagCountMap[Tag.GetTagName()]++;
+		else
+			ActiveTagCountMap.Add(Tag.GetTagName(),1);
+	}
 }
 
 void UActionSystemComponent::DeactivateTags(FGameplayTagContainer const& Tags)
 {
-	for (auto const& Tag : Tags)
-		ActiveTags.Remove(Tag.GetTagName());
+	for (auto const& Tag : Tags.GetGameplayTagParents())
+	{
+		if (ActiveTagCountMap.Find(Tag.GetTagName()))
+		{
+			uint32 Count = --ActiveTagCountMap[Tag.GetTagName()];
+			if (Count == 0) ActiveTagCountMap.Remove(Tag.GetTagName());
+		}
+	}
 }
 
 bool UActionSystemComponent::HasAny(FGameplayTagContainer const& Tags) const
 {
 	for (auto const& Tag : Tags)
 	{
-		if (ActiveTags.Find(Tag.GetTagName()))
+		if (ActiveTagCountMap.Find(Tag.GetTagName()))
 			return true;
 	}
 	return false;
@@ -79,7 +90,7 @@ bool UActionSystemComponent::HasAll(FGameplayTagContainer const& Tags) const
 {
 	for (auto const& Tag : Tags)
 	{
-		if (!ActiveTags.Find(Tag.GetTagName()))
+		if (!ActiveTagCountMap.Find(Tag.GetTagName()))
 			return false;
 	}
 	return true;
