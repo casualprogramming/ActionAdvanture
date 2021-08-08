@@ -61,11 +61,17 @@ protected:
 	FGameplayTagContainer ActiveTags;
 
 	/* Action can only start if OwningActor has none of these Tags applied*/
-	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	UPROPERTY(EditDefaultsOnly, Category = "Tags", DisplayName = "Blocked with Tags")
 	FGameplayTagContainer BlockedTags;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer RequiredTags;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags", DisplayName = "Canceled with Tags")
+	FGameplayTagContainer CanceledTags;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer ActiveCancelTags;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	AActor* GetOwner() const { return Owner; };

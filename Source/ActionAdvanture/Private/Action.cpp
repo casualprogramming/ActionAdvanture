@@ -49,7 +49,8 @@ void UAction::CommitStopAction(AActor* Instigator, bool bCancel)
 bool UAction::CanStart_Implementation(AActor* Instigator)
 {
 	conditionb2(Owner, OwnerActionSystem);
-	if (!OwnerActionSystem->SatisfyTagRequirements(this) || bIsRunning) return false;
+	conditionbf(!CanceledTags.HasAny(ActiveCancelTags),TEXT("\"%s\" Self Canceled(Tags) by ActiveCancelTags found"), *GetActionName().ToString());//self cancel
+	if (bIsRunning|| !OwnerActionSystem->SatisfyTagRequirements(this)) return false;
 	//When a child's CanStart affects the parent
 	for (auto const& Child : ChildActionsClass)
 	{
@@ -65,7 +66,8 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 	condition2(Owner, OwnerActionSystem);
 	bIsRunning = true;
 	OwnerActionSystem->ActivateTags(ActiveTags);
-
+	OwnerActionSystem->AddCancelTagsListener(CanceledTags, this);
+	OwnerActionSystem->CancelActionByTags(ActiveCancelTags, GetOwner());
 	//Start Child
 	for (auto const& Child : ChildActionsClass)
 	{
@@ -88,6 +90,7 @@ void UAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 	condition2(Owner, OwnerActionSystem);
 	bIsRunning = false;
 	OwnerActionSystem->DeactivateTags(ActiveTags);
+	OwnerActionSystem->DeleteCancelTagsListener(CanceledTags, this);
 
 	//Stop Child
 	for (auto const& Child : ChildActionsClass)

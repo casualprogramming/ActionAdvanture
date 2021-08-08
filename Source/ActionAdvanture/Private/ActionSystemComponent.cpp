@@ -15,6 +15,8 @@ UActionSystemComponent::UActionSystemComponent()
 void UActionSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	ActiveTagCountMap.Empty();
+	CancelActionByTagMap.Empty();
 	for (TSubclassOf<UAction> ActionClass : DefaultActions)
 	{
 		RegisterAction(ActionClass, GetOwner());
@@ -106,6 +108,48 @@ void UActionSystemComponent::CancelAllAction(AActor* Instigator)
 	for (auto& Action: Actions)
 	{
 		Action.Value->CommitStopAction(Instigator, true);
+	}
+}
+
+void UActionSystemComponent::CancelActionByTags(FGameplayTagContainer const& Tags, AActor* Instigator)
+{
+	for (auto const& Tag : Tags)
+	{
+		FActionArray* ActionArray = CancelActionByTagMap.Find(Tag.GetTagName());
+		if (ActionArray)
+		{
+			TArray<UAction*> CancelActions = ActionArray->Actions;// copy it because the Actions->CommitStopAction remove the array element, prevent crash
+			for (UAction* Action : CancelActions)
+			{
+				if (IsValid(Action))
+					Action->CommitStopAction(Instigator, true);
+			}
+		}
+	}
+}
+
+//As the number of parents of the CancelTag increases, there can be an overhead. Consider tree-based structure.
+void UActionSystemComponent::AddCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener)
+{
+	for (auto const& Tag : CancelTags.GetGameplayTagParents())
+	{
+		FActionArray& ActionArray = CancelActionByTagMap.FindOrAdd(Tag.GetTagName());
+		ActionArray.Actions.Emplace(Listener);
+	}
+}
+
+void UActionSystemComponent::DeleteCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener)
+{
+	for (auto const& Tag : CancelTags.GetGameplayTagParents())
+	{
+		FActionArray* ActionArray = CancelActionByTagMap.Find(Tag.GetTagName());
+		//Not finding the array is not what I expected. The Action registers with a cancel tag to Array when it starts and removes it when it stops. Always registered once and removed once, never removed again.
+		conditionf(ActionArray, TEXT("Tag \"%s\" is not found. The function \"DeleteCancelTagsListener\" is called when the action is stopped(or cancel). Do not call manually."), *Tag.GetTagName().ToString());
+		conditionf(ActionArray->Actions.Contains(Listener), TEXT("Tag \"%s\" Listener is not found. The function \"DeleteCancelTagsListener\" is called when the action is stopped(or cancel). Do not call manually."), *Tag.GetTagName().ToString());
+		//TODO: Find it backwards and delete it, Most likely it was started a few seconds before stopping and is stored at the end of the array. or change to double list and delete with list address O(1).
+		ActionArray->Actions.Remove(Listener);
+		if (ActionArray->Actions.Num() == 0)
+			CancelActionByTagMap.Remove(Tag.GetTagName());
 	}
 }
 

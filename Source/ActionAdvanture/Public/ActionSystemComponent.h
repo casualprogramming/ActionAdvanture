@@ -9,6 +9,16 @@
 
 class UAction;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionCanceledByTag, AActor*, Instigator);
+
+USTRUCT(Atomic, BlueprintType)
+struct FActionArray{
+	GENERATED_BODY()
+public:
+	UPROPERTY(VisibleAnywhere)
+	TArray<UAction*> Actions;
+};
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ACTIONADVANTURE_API UActionSystemComponent : public UActorComponent
 {
@@ -21,6 +31,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TMap<FName, uint32> ActiveTagCountMap;
+
+	UPROPERTY(VisibleAnywhere)
+	TMap<FName, FActionArray> CancelActionByTagMap;
 
 	UPROPERTY(VisibleAnywhere)
 	TMap<FName, UAction*> Actions;
@@ -52,6 +65,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void DeactivateTags(FGameplayTagContainer const& Tags);
 
+
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool HasAny(FGameplayTagContainer const& BlockTags) const;
 
@@ -66,6 +81,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void CancelAllAction(AActor* Instigator = nullptr);
 	
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void CancelActionByTags(FGameplayTagContainer const& Tags, AActor* Instigator = nullptr);
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void AddCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener);
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void DeleteCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener);
+
 	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
 
 	template<typename T>
