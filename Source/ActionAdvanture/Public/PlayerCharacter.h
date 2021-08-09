@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UActionSystemComponent* ActionSystemComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class UAttributeComponent* AttributeComp;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

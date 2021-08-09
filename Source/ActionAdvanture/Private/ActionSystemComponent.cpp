@@ -153,5 +153,7 @@ void UActionSystemComponent::DeleteCancelTagsListener(FGameplayTagContainer cons
 	}
 }
 
-
-
+void UActionSystemComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+{
+	CancelAllAction(GetOwner());
+}

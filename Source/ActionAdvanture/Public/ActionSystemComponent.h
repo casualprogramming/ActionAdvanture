@@ -94,4 +94,6 @@ public:
 
 	template<typename T>
 	T* GetAction() const { return Cast<T>(Actions[T::StaticClass()->GetDefaultObject<T>()->GetActionName()]); }
+
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 };
