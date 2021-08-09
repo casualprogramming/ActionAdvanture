@@ -153,7 +153,8 @@ void UActionSystemComponent::DeleteCancelTagsListener(FGameplayTagContainer cons
 	}
 }
 
-void UActionSystemComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+void UActionSystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	CancelAllAction(GetOwner());
+	Super::EndPlay(EndPlayReason);
 }
