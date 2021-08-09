@@ -11,13 +11,6 @@ UGrabAction::UGrabAction()
 	ActionName = "GrabAction";
 }
 
-void UGrabAction::Initialize(UActionSystemComponent* ActionSystemComponent)
-{
-	Super::Initialize(ActionSystemComponent);
-	OwnerMesh = GetOwner()->FindComponentByClass<USkeletalMeshComponent>();	condition(OwnerMesh);
-	OwnerAnim = OwnerMesh->GetAnimInstance(); condition(OwnerAnim);
-}
-
 bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 {
 	if (!Super::CanStart_Implementation(Instigator)) return false;
@@ -46,29 +39,25 @@ bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 void UGrabAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	condition4(OwnerAnim, GrabMontage, GrabbedActor, OwnerMesh);
+	condition(GrabbedActor);
 	UPrimitiveComponent* Collider = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
 	condition(Collider);
 	Collider->SetMobility(EComponentMobility::Movable);
 	Collider->SetSimulatePhysics(false);
 
-	//Owner
-	OwnerAnim->Montage_Play(GrabMontage);
-	GrabbedActor->AttachToComponent(OwnerMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, GrabSocketNameInOwner);
+	GrabbedActor->AttachToComponent(GetOwnerMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, GrabSocketNameInOwner);
 }
 
 
-//case Stop: Throw Notify in Montage calls Stop Action (bCancle = false)
-//case Cancel:
+//case Stop: Throw Action calls GrabAction::StopAction  (bCancle = false)
+//case Cancel: Montage cancel or Action cancel
 void UGrabAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
-	//TODO: StopAction: Throw Action. Cancel Action.
 
-	condition2(CancelAnim, GrabbedActor);
+	condition(GrabbedActor);
 	if (bCancel)
 	{
-		OwnerAnim->Montage_Play(CancelAnim);
 		GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
 	}

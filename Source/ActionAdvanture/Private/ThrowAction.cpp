@@ -12,34 +12,25 @@ UThrowAction::UThrowAction()
 	ActionName = "ThrowAction";
 	ThrowDirection = FVector(1, 1, 0);
 	ThrowForce = 100;
-	//RequiredTags.AddTag("GrabAction");
+	//RequiredTags.AddTag("Grab");
 }
 
 void UThrowAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 {
 	Super::Initialize(ActionSystemComponent);
-	OwnerMesh = GetOwner()->FindComponentByClass<USkeletalMeshComponent>();	condition(OwnerMesh);
-	OwnerAnim = OwnerMesh->GetAnimInstance(); condition(OwnerAnim);
-
-	
-	CommitStopDelegate.BindUFunction(this, "CommitStopAction");
 }
 
 void UThrowAction::StartAction_Implementation(AActor* Instigator)
 {
-	Super::StartAction_Implementation(Instigator);
-	condition3(OwnerAnim, ThrowMontage, OwnerMesh);
-	
-	//Get GrabbedActor from GrabAction and stop GrabAction
+	//Get GrabbedActor from GrabAction and stop GrabAction. Prevents the throw action montage from canceling the grab ation montage. 
 	UGrabAction* GrabAction = GetOwnerActionSystem()->GetAction<UGrabAction>();
 	condition(GrabAction);
 	GrabbedActor = GrabAction->GetGrabbedActor();
 	condition(GrabbedActor);
 	GrabAction->CommitStopAction(GetOwner(), false);
-
-	//Play Throw
-	OwnerAnim->Montage_Play(ThrowMontage);
-	OwnerAnim->Montage_SetEndDelegate(CommitStopDelegate, ThrowMontage);
+	
+	Super::StartAction_Implementation(Instigator);
+	
 	if (Delay > 0.0f)
 	{
 		FTimerDelegate Delegate;
@@ -52,25 +43,29 @@ void UThrowAction::StartAction_Implementation(AActor* Instigator)
 
 void UThrowAction::OnThrow()
 {
-	GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+	if (IsValid(GrabbedActor))
+	{
+		GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
 
-	//Add Throw Force
-	FVector Direction = ThrowDirection.Rotation().Quaternion() * GetOwner()->GetActorForwardVector();
-	GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->AddImpulse(Direction * ThrowForce);
-
-	GrabbedActor = nullptr;
-}
-
-void UThrowAction::OnMontageCancel()
-{
-	//OwnerAnim->PlayMontage(CancelAnim);
+		//Add Throw Force
+		FVector Direction = ThrowDirection.Rotation().Quaternion() * GetOwner()->GetActorForwardVector();
+		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->AddImpulse(Direction * ThrowForce);
+	}
 }
 
 void UThrowAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
 	GetWorld()->GetTimerManager().ClearTimer(ThrowTimeHandle);
+
+	if (bCancel)
+	{
+		if(IsValid(GrabbedActor))
+			GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+	}
+
 	GrabbedActor = nullptr;
 }
 
