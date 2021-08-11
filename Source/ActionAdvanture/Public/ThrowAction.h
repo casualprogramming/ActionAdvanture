@@ -27,8 +27,12 @@ private:
 public:
 	UThrowAction();
 	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;
+	virtual bool CanStart_Implementation(AActor* Instigator) override;
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
 	UFUNCTION()
 	virtual void OnThrow(AActor* Instigator);
+
+	UFUNCTION()
+	void OnGrabbedActorDestroyedDoCancelAction(AActor* DestroyedActor) { CommitStopAction(GetOwner(),true);}
 };

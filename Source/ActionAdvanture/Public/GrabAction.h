@@ -15,6 +15,8 @@ class ACTIONADVANTURE_API UGrabAction : public UMontageAction
 	GENERATED_BODY()
 private:
 	UPROPERTY()
+	AActor* HitActor;
+	UPROPERTY()
 	AActor* GrabbedActor;
 
 	UPROPERTY(EditAnywhere, Category = "GrabAndThrow")
@@ -32,4 +34,7 @@ public:
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
 	AActor* GetGrabbedActor() { return GrabbedActor; }
 	FName GetGrabSocketName() {return GrabSocketNameInOwner;}
+
+	UFUNCTION()
+	void OnGrabbedActorDestroyedDoCancelAction(AActor* DestroyedActor) { CommitStopAction(GetOwner(),true);}
 };

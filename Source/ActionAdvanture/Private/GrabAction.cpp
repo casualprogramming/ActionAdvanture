@@ -5,6 +5,7 @@
 #include "ActionSystemComponent.h"
 #include "CommonUtils.h"
 #include "DrawDebugHelpers.h"
+#include <functional>
 
 
 UGrabAction::UGrabAction()
@@ -28,8 +29,8 @@ bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 
 	DrawDebugCapsule(GetOwner()->GetWorld(), (Start + End) * 0.5f, (End - Start).Size() * 0.5f, Radius, FRotationMatrix::MakeFromZ(End - Start).ToQuat(), hit.GetActor()? FColor::Green: FColor::Red, false, 0.5f);
 
-	GrabbedActor = hit.GetActor();
-	if (!IsValid(GrabbedActor)) return false;
+	HitActor = hit.GetActor();
+	if (!IsValid(HitActor)) return false;
 
 	//UGrabAndThrowListenerComponent* Listener = GrabbedActor->FindComponentByClass<UGrabAndThrowListenerComponent>();
 	//if (!IsValid(Listener)) { GrabbedActor = nullptr; return; }//this will not happen. If you are only tracing objects with UGrabAndThrowListenerComponent.
@@ -42,16 +43,18 @@ void UGrabAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
 	GetOwnerActionSystem()->GetEventDelegate("Grab").AddDynamic(this, &UGrabAction::GrabEvent);
+	HitActor->OnDestroyed.AddDynamic(this, &UGrabAction::OnGrabbedActorDestroyedDoCancelAction);
 }
 
 void UGrabAction::GrabEvent(AActor* Instigator)
 {
+	GrabbedActor = HitActor;
 	condition(GrabbedActor);
 	UPrimitiveComponent* Collider = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
 	condition(Collider);
 	Collider->SetMobility(EComponentMobility::Movable);
 	Collider->SetSimulatePhysics(false);
-
+	
 	GrabbedActor->AttachToComponent(GetOwnerMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, GrabSocketNameInOwner);
 }
 
@@ -60,10 +63,9 @@ void UGrabAction::GrabEvent(AActor* Instigator)
 void UGrabAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
-
+	HitActor->OnDestroyed.RemoveDynamic(this, &UGrabAction::OnGrabbedActorDestroyedDoCancelAction);
 	GetOwnerActionSystem()->GetEventDelegate("Grab").RemoveDynamic(this, &UGrabAction::GrabEvent);
-	condition(GrabbedActor);
-	if (bCancel)
+	if (bCancel && IsValid(GrabbedActor))
 	{
 		GrabbedActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
