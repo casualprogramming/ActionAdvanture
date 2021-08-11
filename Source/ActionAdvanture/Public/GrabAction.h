@@ -22,7 +22,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "GrabAndThrow")
 	FName GrabSocketNameInOwner;
-
+	
+	UFUNCTION()
+	void GrabEvent(AActor* Instigator);
 public:
 	UGrabAction();
 	virtual bool CanStart_Implementation(AActor* Instigator) override;

@@ -2,6 +2,7 @@
 
 
 #include "GrabAction.h"
+#include "ActionSystemComponent.h"
 #include "CommonUtils.h"
 #include "DrawDebugHelpers.h"
 
@@ -36,9 +37,15 @@ bool UGrabAction::CanStart_Implementation(AActor* Instigator)
 	return true;
 }
 
+
 void UGrabAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
+	GetOwnerActionSystem()->GetEventDelegate("Grab").AddDynamic(this, &UGrabAction::GrabEvent);
+}
+
+void UGrabAction::GrabEvent(AActor* Instigator)
+{
 	condition(GrabbedActor);
 	UPrimitiveComponent* Collider = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
 	condition(Collider);
@@ -48,13 +55,13 @@ void UGrabAction::StartAction_Implementation(AActor* Instigator)
 	GrabbedActor->AttachToComponent(GetOwnerMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, GrabSocketNameInOwner);
 }
 
-
 //case Stop: Throw Action calls GrabAction::StopAction  (bCancle = false)
 //case Cancel: Montage cancel or Action cancel
 void UGrabAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
 
+	GetOwnerActionSystem()->GetEventDelegate("Grab").RemoveDynamic(this, &UGrabAction::GrabEvent);
 	condition(GrabbedActor);
 	if (bCancel)
 	{

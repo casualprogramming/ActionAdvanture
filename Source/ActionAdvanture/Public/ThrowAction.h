@@ -22,16 +22,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Throw")
 	FVector ThrowDirection;
-	
-	UPROPERTY(EditAnywhere, Category = "Throw")
-	float Delay;
 
-	FTimerHandle ThrowTimeHandle;
 
 public:
 	UThrowAction();
 	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
-	virtual void OnThrow();
+	UFUNCTION()
+	virtual void OnThrow(AActor* Instigator);
 };

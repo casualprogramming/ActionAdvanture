@@ -31,17 +31,10 @@ void UThrowAction::StartAction_Implementation(AActor* Instigator)
 	
 	Super::StartAction_Implementation(Instigator);
 	
-	if (Delay > 0.0f)
-	{
-		FTimerDelegate Delegate;
-		Delegate.BindUObject(this, &UThrowAction::OnThrow);
-		GetWorld()->GetTimerManager().SetTimer(ThrowTimeHandle, Delegate, Delay, false);
-	}
-	else
-		OnThrow();
+	GetOwnerActionSystem()->GetEventDelegate("Throw").AddDynamic(this, &UThrowAction::OnThrow);
 }
 
-void UThrowAction::OnThrow()
+void UThrowAction::OnThrow(AActor* Instigator)
 {
 	if (IsValid(GrabbedActor))
 	{
@@ -57,7 +50,7 @@ void UThrowAction::OnThrow()
 void UThrowAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
-	GetWorld()->GetTimerManager().ClearTimer(ThrowTimeHandle);
+	GetOwnerActionSystem()->GetEventDelegate("Throw").RemoveDynamic(this, &UThrowAction::OnThrow);
 
 	if (bCancel)
 	{

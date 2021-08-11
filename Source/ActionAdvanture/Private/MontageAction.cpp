@@ -8,6 +8,7 @@
 UMontageAction::UMontageAction()
 {
 	ActionName = "MontageAction";
+	PlayRate = 1.0f;
 }
 
 void UMontageAction::Initialize(UActionSystemComponent* ActionSystemComponent)
@@ -26,7 +27,7 @@ void UMontageAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
 	condition(Montage);
-	OwnerAnim->Montage_Play(Montage);
+	OwnerAnim->Montage_Play(Montage, PlayRate);
 	OwnerAnim->Montage_SetEndDelegate(CommitStopDelegate, Montage);
 }
 

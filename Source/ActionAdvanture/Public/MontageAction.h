@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	UAnimMontage* Montage;
 
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	float PlayRate;
+
 public:
 	UMontageAction();
 	UAnimInstance* GetOwnerAnim() { return OwnerAnim; }
