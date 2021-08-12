@@ -49,10 +49,13 @@ void UAction::CommitStopAction(AActor* Instigator, bool bCancel)
 
 UWorld* UAction::GetWorld() const
 {
-	if (ensure(GetOwner()))
-		return GetOwner()->GetWorld();
-	else
-		return nullptr;
+	AActor* Actor = Cast<AActor>(GetOuter());
+	if (Actor)
+	{
+		return Actor->GetWorld();
+	}
+
+	return nullptr;
 }
 
 

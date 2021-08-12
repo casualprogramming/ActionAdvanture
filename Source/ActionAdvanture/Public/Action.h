@@ -12,8 +12,6 @@
  * References: https://github.com/tomlooman/ActionRoguelike, https://docs.unrealengine.com/4.26/en-US/InteractiveExperiences/GameplayAbilitySystem/
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCanStart, AActor*, Instigator);
-
 class UActionSystemComponent;
 class UCooldownAction;
 
@@ -129,6 +127,7 @@ public:
 	UWorld* GetWorld() const override;
 
 	//helper function for creating child CooldownAction (runtime cooldown)
+	UPROPERTY()
 	UCooldownAction* ChildCooldownAction;
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void AddCooldown(float CooldownDuration);

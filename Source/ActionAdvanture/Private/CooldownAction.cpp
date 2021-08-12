@@ -2,11 +2,13 @@
 
 
 #include "CooldownAction.h"
+#include "CommonUtils.h"
 
 void UCooldownAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	TimeStarted = GetOwner()->GetWorld()->GetTimeSeconds();
+	condition(IsValid(GetWorld()));
+	TimeStarted = GetWorld()->GetTimeSeconds();
 	if (Duration > 0.0f)
 	{
 		FTimerDelegate Delegate;
@@ -19,6 +21,7 @@ void UCooldownAction::StartAction_Implementation(AActor* Instigator)
 void UCooldownAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
+	condition(IsValid(GetWorld()));
 	GetWorld()->GetTimerManager().ClearTimer(DurationHandle);
 }
 
@@ -44,6 +47,7 @@ void UCooldownAction::StartCooldownDuration(float CooldownDuration)
 
 float UCooldownAction::GetTimeRemaining() const
 {
+	condition_return(IsValid(GetWorld()),0.0f);
 	if (!IsRunning())
 		return 0.0f;
 	else

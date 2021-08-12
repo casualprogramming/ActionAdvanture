@@ -9,7 +9,8 @@
 void UActionEffect::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	TimeStarted = GetOwner()->GetWorld()->GetTimeSeconds();
+	condition(IsValid(GetWorld()));
+	TimeStarted = GetWorld()->GetTimeSeconds();
 	if (Duration > 0.0f)
 	{
 		FTimerDelegate Delegate;
@@ -29,6 +30,7 @@ void UActionEffect::StartAction_Implementation(AActor* Instigator)
 
 void UActionEffect::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
+	condition(IsValid(GetWorld()));
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(PeriodHandle) < KINDA_SMALL_NUMBER)
 	{
 		ExecutePeriodicEffect(Instigator);
@@ -41,12 +43,14 @@ void UActionEffect::StopAction_Implementation(AActor* Instigator, bool bCancel)
 
 float UActionEffect::GetTimeRemaining() const
 {
+	condition_return(IsValid(GetWorld()),0.0f);
+
 	if (!IsRunning()) 
 		return 0.0f;
 	else
 	{
 		float EndTime = TimeStarted + Duration;
-		float CurrentTime = GetOwner()->GetWorld()->GetTimeSeconds();
+		float CurrentTime = GetWorld()->GetTimeSeconds();
 		return EndTime - CurrentTime;
 	}
 }

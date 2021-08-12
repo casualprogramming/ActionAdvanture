@@ -9,9 +9,19 @@
 
 class UAction;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionCanceledByTag, AActor*, Instigator);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCustomEvents, AActor*, Instigator);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionCustomEvents, AActor*, Instigator);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnCustomEvent, AActor*, Instigator);
+
+/** (It was possible to compile without using a wrapping class and there was no problem at runtime, but the crash occurred when the megascan plugin was put, and it was fixed to wrapping class.)
+ *  Warpping Class for Action Event delegate to be stored in TMap
+ */
+USTRUCT(Atomic, BlueprintType)
+struct FActionEventDelegateWrapper {
+	GENERATED_BODY()
+public:
+	UPROPERTY(VisibleAnywhere)
+	FOnActionCustomEvents Delegate;
+};
 
 USTRUCT(Atomic, BlueprintType)
 struct FActionArray{
@@ -41,7 +51,7 @@ protected:
 	TMap<FName, UAction*> Actions;
 
 	UPROPERTY(VisibleAnywhere)
-	TMap<FName, FOnCustomEvents> CustomEventMap;
+	TMap<FName, FActionEventDelegateWrapper> CustomEventMap;
 
 	virtual void BeginPlay() override;
 
@@ -51,16 +61,16 @@ protected:
 
 public:	
 
-	FOnCustomEvents& GetEventDelegate(FName EventName) {return CustomEventMap.FindOrAdd(EventName);}
+	FOnActionCustomEvents& GetEventDelegate(FName EventName) {return CustomEventMap.FindOrAdd(EventName).Delegate;}
 	
 	/* After binding, the function remains even if the Uobject is deleted. */
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void BindEventUnsafe(FName EventName, FOnCustomEvent const& Event) { return CustomEventMap.FindOrAdd(EventName).Add(Event); }
-	void DeleteEvent(FName EventName, FOnCustomEvent const& Event) { return CustomEventMap.FindOrAdd(EventName).Remove(Event); }
+	void BindEventUnsafe(FName EventName, FOnCustomEvent const& Event) { CustomEventMap.FindOrAdd(EventName).Delegate.Add(Event); }
+	void DeleteEvent(FName EventName, FOnCustomEvent const& Event) { FActionEventDelegateWrapper* Events = CustomEventMap.Find(EventName); if (Events) Events->Delegate.Remove(Event);}
 
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void BroadcastEvent(FName EventName, AActor* Instigator) { FOnCustomEvents* Events = CustomEventMap.Find(EventName); if(Events)Events->Broadcast(Instigator);}
+	void BroadcastEvent(FName EventName, AActor* Instigator) { FActionEventDelegateWrapper* Events = CustomEventMap.Find(EventName); if(Events)Events->Delegate.Broadcast(Instigator);}
 
 
 	/*	To start an Action, you need to register the Action. 
