@@ -15,6 +15,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCanStart, AActor*, Instigator);
 
 class UActionSystemComponent;
+class UCooldownAction;
 
 USTRUCT(Atomic, BlueprintType)
 struct FChildActionDesc
@@ -32,12 +33,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bInstancingWithParentName = true;
 
+	/* The action starts when the parent action starts. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSyncActionStartWithParent = true;
+
 	/* The action stops when the parent action stops. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bSyncActionStopWithParent = true;
 
 	//Available after Initialize
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UAction* Action;
 };
 
@@ -56,6 +61,9 @@ private:
 
 	//true at StartAction, false at StopAction
 	bool bIsRunning;
+
+	UCooldownAction* GetorAddChildCooldownHelperAction();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer ActiveTags;
@@ -118,6 +126,14 @@ public:
 
 	bool IsRunning() const{ return bIsRunning; };
 
+	UWorld* GetWorld() const override;
+
+	//helper function for creating child CooldownAction (runtime cooldown)
+	UCooldownAction* ChildCooldownAction;
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void AddCooldown(float CooldownDuration);
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void StartCooldown(float CooldownDuration);
 };
 
 

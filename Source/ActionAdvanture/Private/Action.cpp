@@ -2,6 +2,7 @@
 
 
 #include "Action.h"
+#include "CooldownAction.h"
 #include "ActionSystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "CommonUtils.h"
@@ -46,6 +47,15 @@ void UAction::CommitStopAction(AActor* Instigator, bool bCancel)
 		StopAction(Instigator, bCancel);
 }
 
+UWorld* UAction::GetWorld() const
+{
+	if (ensure(GetOwner()))
+		return GetOwner()->GetWorld();
+	else
+		return nullptr;
+}
+
+
 bool UAction::CanStart_Implementation(AActor* Instigator)
 {
 	conditionb2(Owner, OwnerActionSystem);
@@ -71,16 +81,19 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 	//Start Child
 	for (auto const& Child : ChildActionsClass)
 	{
-		//already checked at parent's CanStart
-		if (Child.bCallCanStartAtParent)
+		if(Child.bSyncActionStartWithParent)
 		{
-			Child.Action->StartAction(Instigator);
-		}
-		//already checked yet
-		else
-		{
-			if (Child.Action->CanStart(Instigator))
+			//already checked at parent's CanStart
+			if (Child.bCallCanStartAtParent)
+			{
 				Child.Action->StartAction(Instigator);
+			}
+			//already checked yet
+			else
+			{
+				if (Child.Action->CanStart(Instigator))
+					Child.Action->StartAction(Instigator);
+			}
 		}
 	}
 }
@@ -98,3 +111,30 @@ void UAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 			Child.Action->CommitStopAction(Instigator, bCancel);
 }
 
+UCooldownAction* UAction::GetorAddChildCooldownHelperAction()
+{
+	if (!ChildCooldownAction)
+	{
+		FName ChildCooldownActionName = FName(this->GetActionName().ToString() + "." + "CooldownHelper");
+
+		OwnerActionSystem->RegisterAction(UCooldownAction::StaticClass(), nullptr, ChildCooldownActionName);
+		ChildCooldownAction = Cast<UCooldownAction>(OwnerActionSystem->GetAction(ChildCooldownActionName));
+		FChildActionDesc Desc;
+		Desc.Action = ChildCooldownAction;
+		Desc.bCallCanStartAtParent = true;//prevent parent's start during cooltime
+		Desc.bSyncActionStartWithParent = false;
+		Desc.bSyncActionStopWithParent = false;
+		ChildActionsClass.Add(Desc);
+	}
+	return ChildCooldownAction;
+}
+void UAction::AddCooldown(float CooldownDuration)
+{
+	GetorAddChildCooldownHelperAction()->AddCooldownDuration(CooldownDuration);
+}
+
+void UAction::StartCooldown(float CooldownDuration)
+{
+	GetorAddChildCooldownHelperAction()->StartCooldownDuration(CooldownDuration);
+
+}
