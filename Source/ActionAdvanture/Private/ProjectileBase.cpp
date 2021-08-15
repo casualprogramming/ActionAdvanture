@@ -37,11 +37,11 @@ AProjectileBase::AProjectileBase()
 
 void AProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Explode();
+	Explode(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 }
 
 // _Implementation from it being marked as BlueprintNativeEvent
-void AProjectileBase::Explode_Implementation()
+void AProjectileBase::Explode_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// Check to make sure we aren't already being 'destroyed'
 	// Adding ensure to see if we encounter this situation at all
