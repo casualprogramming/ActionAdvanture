@@ -16,8 +16,6 @@ AProjectileBase::AProjectileBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-	SphereComp->SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
-	SphereComp->OnComponentHit.AddDynamic(this, &AProjectileBase::OnActorHit);
 	RootComponent = SphereComp;
 
 	OngoingEffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
@@ -27,26 +25,42 @@ AProjectileBase::AProjectileBase()
 	OngoingAudioComp->SetupAttachment(RootComponent);
 
 	MoveComp = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMoveComp");
-	MoveComp->bRotationFollowsVelocity = true;
-	MoveComp->bInitialVelocityInLocalSpace = true;
-	MoveComp->ProjectileGravityScale = 0.0f;
-	MoveComp->InitialSpeed = 8000;
+
+	//Initial speed if you want to use simulating physics of SphereComponent, otherwise use Velocity
+	MoveComp->Velocity = FVector(500, 0, 500);
+	
+	//MoveComp->bRotationFollowsVelocity = true;
+	//MoveComp->bInitialVelocityInLocalSpace = true;
+	//MoveComp->ProjectileGravityScale = 0.0f;
+	//MoveComp->InitialSpeed = 8000;
 
 }
 
-
-void AProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AProjectileBase::BeginPlay()
 {
-	Explode(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
+	Super::BeginPlay();
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::OnBeginOverlap);
+}
+
+void AProjectileBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//UE_LOG(LogTemp, Log, TEXT("Overlap %s."), *GetInstigator()->GetName());
+	Explode(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
 // _Implementation from it being marked as BlueprintNativeEvent
-void AProjectileBase::Explode_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AProjectileBase::Explode_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (GetInstigator() == OtherActor)
+	{
+		return;
+	}
+
 	// Check to make sure we aren't already being 'destroyed'
 	// Adding ensure to see if we encounter this situation at all
 	if (ensure(!IsPendingKill()))
 	{
+		UE_LOG(LogTemp, Log, TEXT("overlap %s."), *OtherActor->GetName());
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
 
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
