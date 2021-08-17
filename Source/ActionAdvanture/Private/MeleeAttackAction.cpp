@@ -10,6 +10,8 @@
 UMeleeAttackAction::UMeleeAttackAction()
 {
 	ActionName = "MeleeAttackAction";
+	EnableMeleeAttackCollisionEventTag = FGameplayTag::RequestGameplayTag(FName("ActionSystemEvent.MeleeAttack.EnableCollision"));
+	DisableMeleeAttackCollisionEventTag = FGameplayTag::RequestGameplayTag(FName("ActionSystemEvent.MeleeAttack.DisableCollision"));
 }
 
 
@@ -35,8 +37,8 @@ bool UMeleeAttackAction::CanStart_Implementation(AActor* Instigator)
 void UMeleeAttackAction::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	GetOwnerActionSystem()->GetEventDelegate("EnableMeleeAttackCollision").AddDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
-	GetOwnerActionSystem()->GetEventDelegate("DisableMeleeAttackCollision").AddDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
+	GetOwnerActionSystem()->GetEventDelegate(EnableMeleeAttackCollisionEventTag.GetTagName()).AddDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
+	GetOwnerActionSystem()->GetEventDelegate(DisableMeleeAttackCollisionEventTag.GetTagName()).AddDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
 }
 
 void UMeleeAttackAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
@@ -45,8 +47,8 @@ void UMeleeAttackAction::StopAction_Implementation(AActor* Instigator, bool bCan
 	
 	MeleeAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	GetOwnerActionSystem()->GetEventDelegate("EnableMeleeAttackCollision").RemoveDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
-	GetOwnerActionSystem()->GetEventDelegate("DisableMeleeAttackCollision").RemoveDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
+	GetOwnerActionSystem()->GetEventDelegate(EnableMeleeAttackCollisionEventTag.GetTagName()).RemoveDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
+	GetOwnerActionSystem()->GetEventDelegate(DisableMeleeAttackCollisionEventTag.GetTagName()).RemoveDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
 }
 
 //Enable Event from Montage

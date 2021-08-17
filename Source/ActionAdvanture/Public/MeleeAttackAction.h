@@ -21,6 +21,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "MeleeAttackAction")
 	FName MeleeColliderComponentTag = "MeleeAttackCollider";
 
+	UPROPERTY(VisibleAnywhere, Category = "MeleeAttackEventTags")
+	FGameplayTag EnableMeleeAttackCollisionEventTag;
+
+	UPROPERTY(VisibleAnywhere, Category = "MeleeAttackEventTags")
+	FGameplayTag DisableMeleeAttackCollisionEventTag;
+	
+
 public:
 	UMeleeAttackAction();
 	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;
