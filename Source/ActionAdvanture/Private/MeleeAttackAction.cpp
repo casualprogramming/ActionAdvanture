@@ -61,7 +61,6 @@ void UMeleeAttackAction::OnEventDisableMeleeAttackCollision(AActor* Instigator)
 	MeleeAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void UMeleeAttackAction::OnMeleeAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UMeleeAttackAction::OnMeleeAttackOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("OnMeleeAttackOverlap %s -> %s "), *OverlappedComponent->GetOwner()->GetName(), *OtherActor->GetName()));
 }
