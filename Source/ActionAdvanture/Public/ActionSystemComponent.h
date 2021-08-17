@@ -66,6 +66,8 @@ public:
 	/* After binding, the function remains even if the Uobject is deleted. */
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void BindEventUnsafe(FName EventName, FOnCustomEvent const& Event) { CustomEventMap.FindOrAdd(EventName).Delegate.Add(Event); }
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
 	void DeleteEvent(FName EventName, FOnCustomEvent const& Event) { FActionEventDelegateWrapper* Events = CustomEventMap.Find(EventName); if (Events) Events->Delegate.Remove(Event);}
 
 
