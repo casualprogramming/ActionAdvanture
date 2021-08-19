@@ -18,17 +18,17 @@ const std::array<std::array<EElementalChangeData, ElementalStateTypeCount>, Elem
 	Rules[Fire][None]	= { Fire, NO_CHANGE };							//no change
 	Rules[Fire][Fire]	= { Fire, NO_CHANGE };							//no change
 	Rules[Fire][Ice]	= { Fire, NO_CHANGE };							//no change
-	Rules[Fire][Water]	= { None, EXTINGUISHED };							//extinguished
+	Rules[Fire][Water]	= { None, EXTINGUISHED };						//extinguished
 						  	
-	Rules[Ice][None]	= { Ice, NO_CHANGE };								//no change
-	Rules[Ice][Fire]	= { None, MELT };							//melt
-	Rules[Ice][Ice]		= { Ice, NO_CHANGE };								//no change
+	Rules[Ice][None]	= { Ice, NO_CHANGE };							//no change
+	Rules[Ice][Fire]	= { None, MELT };								//melt
+	Rules[Ice][Ice]		= { Ice, NO_CHANGE };							//no change
 	Rules[Ice][Water]	= { Ice, NO_CHANGE };							//no change
 						  
 	Rules[Water][None]	= { Water, NO_CHANGE };							//no change
 	Rules[Water][Fire]	= { Water, NO_CHANGE };							//no change
-	Rules[Water][Ice]	= { Ice, FROZEN };							//frozen
-	Rules[Water][Water] = { Water, NO_CHANGE };						//no change
+	Rules[Water][Ice]	= { Ice, FROZEN };								//frozen
+	Rules[Water][Water] = { Water, NO_CHANGE };							//no change
 	return Rules;
 }();
 
@@ -64,10 +64,14 @@ void UElementalListenerComponent::BeginPlay()
 	condition(Collider->GetCollisionProfileName() == "OverlapOnlyElementalEmitter");
 	Collider->OnComponentBeginOverlap.AddDynamic(this, &UElementalListenerComponent::OnListenerBeginOverlap);
 
-
-	//To simplify the logic, this object is always waiting for element overlap.
-	// ...
-	
+	/*TODO: If it is already overlapped at start time, it will not overlap.
+	* I used the trick, but it's not the right way.*/
+	FVector DefaultLocation = Collider->GetRelativeLocation();
+	float BigFloat = std::numeric_limits<float>::max()*0.5f;
+	Collider->SetRelativeLocation_Direct(FVector(-BigFloat, -BigFloat, -BigFloat));
+	FTimerDelegate Delegate;
+	Delegate.BindLambda([=] {Collider->SetRelativeLocation_Direct(DefaultLocation); });
+	GetWorld()->GetTimerManager().SetTimer(StartBeginOverlapTrickTimerHandle, Delegate, 0.01f, false);
 }
 
 
@@ -88,17 +92,17 @@ void UElementalListenerComponent::RecieveElement(EElementalStateType InState, AA
 		auto const& EventFunc = StateChangeEventMap[Rule.ChangeType];
 		EventFunc(this);
 		State = Rule.NextState;
-		UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::Change [%s] -> [%s] %s is ElementalStateChanged by %s."), *UEnum::GetValueAsString(PreviousState.GetValue()), *UEnum::GetValueAsString(State.GetValue()), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
+		UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent StateChangeEvent %s: [%s] -> [%s], Recipient [%s] <- [%s]."), *UEnum::GetValueAsString(Rule.ChangeType), *UEnum::GetValueAsString(PreviousState.GetValue()), *UEnum::GetValueAsString(State.GetValue()), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
 	}
 }
 
-
+//TODO: Generates an overlap event in only one of the listener and emitter.
 void UElementalListenerComponent::OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	condition(GetOwner());
 	UElementalEmitterComponent* OtherEmitter = OtherActor->FindComponentByClass<UElementalEmitterComponent>();
 	condition(OtherEmitter);
-	UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::Overlap. %s <- %s, TryChange %s <- %s "), *GetOwner()->GetName(), *OtherActor->GetName(), *UEnum::GetValueAsString(State.GetValue()), *UEnum::GetValueAsString(OtherEmitter->GetElement().GetValue()));
+	UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::Overlap. %s <- %s, Received Element %s <- %s "), *GetOwner()->GetName(), *OtherActor->GetName(), *UEnum::GetValueAsString(State.GetValue()), *UEnum::GetValueAsString(OtherEmitter->GetElement().GetValue()));
 
 	if(OtherEmitter)
 	{

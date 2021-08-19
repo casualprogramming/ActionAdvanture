@@ -41,33 +41,18 @@ AElementalBomb::AElementalBomb()
 	ElementalListenerComp = CreateDefaultSubobject<UElementalListenerComponent>("ElementalListenerComp");
 	ElementalListenerComp->SetupAttachment(ElementalListenerCollider);
 
-
 }
 
 // Called when the game starts or when spawned
 void AElementalBomb::BeginPlay()
 {
 	Super::BeginPlay();
-	condition(ElementalListenerComp);
-	//ElementalListenerComp->OnElementStateChanged.AddDynamic(this, &AElementalBomb::OnElementalStateChanged);
 }
 
 // Called every frame
 void AElementalBomb::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-
-//void AElementalBomb::OnElementalStateChanged(EElementalStateType PreviousState, EElementalStateType ChangedState, AActor* Other)
-//{
-//	//UE_LOG(LogTemp, Log, TEXT("ElementalStateChanged."));
-//	//
-//	//if (PreviousState == Ice && ChangedState == None)
-//	//{
-//	//	//melt
-//	//	SetLifeSpan(4.0f);
-//	//}
-//}
 
 

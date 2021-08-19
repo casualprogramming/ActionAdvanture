@@ -68,6 +68,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	FTimerHandle StartBeginOverlapTrickTimerHandle;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override { Super::EndPlay(EndPlayReason); GetWorld()->GetTimerManager().ClearTimer(StartBeginOverlapTrickTimerHandle); };
 
 public:
 

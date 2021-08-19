@@ -64,12 +64,4 @@ void UElementalEmitterComponent::ActivateElement(TEnumAsByte<EElementalStateType
 {
 	Element = InElement;
 	Activate(false);
-	/*
-	//ignore None Element
-	if (Element == None)
-	{
-		Deactivate();
-		we get none me
-	}
-	*/
 }

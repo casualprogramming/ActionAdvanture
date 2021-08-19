@@ -41,8 +41,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UAudioComponent* OngoingAudioComp;
 
-	
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,8 +48,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	//UFUNCTION()
-	//virtual void OnElementalStateChanged(EElementalStateType PreviousState, EElementalStateType ChangedState, AActor* Other);
 
 };
