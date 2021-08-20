@@ -40,7 +40,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnElementalStateChanged, EElemen
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnElementalStateChangedNoParam);
 
 
-UCLASS(Blueprintable, BlueprintType, meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, BlueprintType, hidecategories = (Activation), meta=(BlueprintSpawnableComponent))
 class ACTIONADVANTURE_API UElementalListenerComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -60,7 +60,10 @@ public:
 	UElementalListenerComponent();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ElementalListener")
-	TEnumAsByte<EElementalStateType> State;
+	TEnumAsByte<EElementalStateType> BeginState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ElementalListener")
+	TEnumAsByte<EElementalStateType> CurrentState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ElementalListener")
 	TSet<TEnumAsByte<EElementalChangeType>> IgnoreMap;
@@ -68,7 +71,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 public:
 
 	static const std::array<std::function<void(UElementalListenerComponent*)>, ElementalChangeTypeCount> StateChangeEventMap;
@@ -91,9 +93,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
+	UFUNCTION(BlueprintCallable)
 	virtual void RecieveElement(EElementalStateType ReceivedElement, AActor* Instigator);
 
-	EElementalStateType GetState() { return State; }
+	EElementalStateType GetState() { return CurrentState; }
 
 	//UFUNCTION()
 	//void OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

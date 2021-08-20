@@ -8,7 +8,7 @@
 #include "ElementalEmitterComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), hidecategories = (Activation), meta=(BlueprintSpawnableComponent) )
 class ACTIONADVANTURE_API UElementalEmitterComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -27,7 +27,10 @@ protected:
 	UPROPERTY()
 	class UPrimitiveComponent* EmitterCollider;
 
-	bool bAutoActivateEmitter;
+	/** Forces the collider to enable collision when this component beginplay. otherwise disable. Be careful because the order of beginplay is not guaranteed. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmitterElement")
+	bool bAutoActivateInComponentBeginplay;
+
 	FTimerHandle StartBeginOverlapTrickTimerHandle;
 
 public:	
@@ -39,8 +42,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ActivateElement(TEnumAsByte<EElementalStateType> InElement);
-	virtual void Activate(bool bReset=false) override;
-	virtual void Deactivate() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override { Super::EndPlay(EndPlayReason); GetWorld()->GetTimerManager().ClearTimer(StartBeginOverlapTrickTimerHandle); };
 
 	UFUNCTION(BlueprintCallable)

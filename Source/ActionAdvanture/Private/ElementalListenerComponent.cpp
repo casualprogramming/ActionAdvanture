@@ -54,20 +54,21 @@ UElementalListenerComponent::UElementalListenerComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void UElementalListenerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	UPrimitiveComponent* Collider = Cast<UPrimitiveComponent>(GetAttachParent());//listener collider
 	conditionf(Collider,TEXT("Collider is not found. UElementalListenerComponent should be attached as a child of the UPrimitiveComponent"));
-	condition(Collider->GetCollisionProfileName() == "OverlapOnlyElementalEmitter");
-
+	conditionf(Collider->GetCollisionProfileName() == "OverlapOnlyElementalEmitter", TEXT("Check Actor %s"), *GetOwner()->GetName());
+	CurrentState = BeginState;
+	UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::BeginPlay() %s"), *GetOwner()->GetName());
 	/*RecieveElement is automatically called in OnComponentBeginOverlap of Emitter.
 	No need to register OnComponentBeginOverlap in Listener.
 	*/
 	//For Debug
 	//Collider->OnComponentBeginOverlap.AddDynamic(this, &UElementalListenerComponent::OnListenerBeginOverlap);
+
 }
 
 
@@ -81,13 +82,14 @@ void UElementalListenerComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UElementalListenerComponent::RecieveElement(EElementalStateType InState, AActor* Instigator)
 {
-	auto const& Rule = QueryRule(State, InState);
-	if (!IgnoreMap.Contains(Rule.ChangeType))
+	conditionf(!IgnoreMap.Contains(ElementalChangeTypeCount), TEXT("Please remove ElementalChangeTypeCount tag in UElementalListenerComponent ignore map. It is not available tag"));
+	auto const& Rule = QueryRule(CurrentState, InState);
+	if (!IgnoreMap.Contains(Rule.ChangeType) && Rule.ChangeType != NO_CHANGE)
 	{
-		auto PreviousState = State;
+		auto PreviousState = CurrentState;
 		auto const& EventFunc = StateChangeEventMap[Rule.ChangeType];
 		EventFunc(this);
-		State = Rule.NextState;
+		CurrentState = Rule.NextState;
 		UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("StateChangeEvent"), *UEnum::GetValueAsString(Rule.ChangeType), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
 	}
 }
