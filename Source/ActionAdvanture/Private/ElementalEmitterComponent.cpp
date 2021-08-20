@@ -27,7 +27,21 @@ void UElementalEmitterComponent::BeginPlay()
 	{
 		EmitterCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
-	// ...
+	
+	/*TODO:
+	* If it is already overlapped at start time, it will not generate overlap event.
+	* I used the trick, but it's not the right way.*/
+
+	//Initial Overlaps
+	TArray<FOverlapResult> Hits;
+	EmitterCollider->ComponentOverlapMulti(Hits,GetWorld(), EmitterCollider->GetComponentLocation(), EmitterCollider->GetComponentRotation(),ECollisionChannel::ECC_GameTraceChannel2);
+	for (auto const& Hit: Hits)
+	{
+		UElementalListenerComponent* OtherListener = Hit.GetActor()->FindComponentByClass<UElementalListenerComponent>();
+		condition(OtherListener);
+		UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("BeginPlay Emit"), *UEnum::GetValueAsString(Element), *GetOwner()->GetName(), *Hit.GetActor()->GetName());
+		OtherListener->RecieveElement(Element, GetOwner());
+	}
 }
 
 
@@ -41,8 +55,11 @@ void UElementalEmitterComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 void UElementalEmitterComponent::OnEmitterBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	condition(GetOwner());
-	UE_LOG(LogTemp, Log, TEXT("EmitterOverlap. %s -> %s"), *GetOwner()->GetName(), *OtherActor->GetName());
+	UElementalListenerComponent* OtherListener = OtherActor->FindComponentByClass<UElementalListenerComponent>();
+	condition(OtherListener);
+	UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("Emit"), *UEnum::GetValueAsString(Element), *GetOwner()->GetName(), *OtherActor->GetName());
+	
+	OtherListener->RecieveElement(Element,GetOwner());
 }
 
 

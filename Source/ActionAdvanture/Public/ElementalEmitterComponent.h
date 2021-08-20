@@ -24,9 +24,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmitterElement")
 	TEnumAsByte<EElementalStateType> Element;
 
+	UPROPERTY()
 	class UPrimitiveComponent* EmitterCollider;
 
 	bool bAutoActivateEmitter;
+	FTimerHandle StartBeginOverlapTrickTimerHandle;
 
 public:	
 	// Called every frame
@@ -39,6 +41,7 @@ public:
 	void ActivateElement(TEnumAsByte<EElementalStateType> InElement);
 	virtual void Activate(bool bReset=false) override;
 	virtual void Deactivate() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override { Super::EndPlay(EndPlayReason); GetWorld()->GetTimerManager().ClearTimer(StartBeginOverlapTrickTimerHandle); };
 
 	UFUNCTION(BlueprintCallable)
 	TEnumAsByte<EElementalStateType> const& GetElement() { return Element; }

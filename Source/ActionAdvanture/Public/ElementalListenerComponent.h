@@ -68,8 +68,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	FTimerHandle StartBeginOverlapTrickTimerHandle;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override { Super::EndPlay(EndPlayReason); GetWorld()->GetTimerManager().ClearTimer(StartBeginOverlapTrickTimerHandle); };
 
 public:
 
@@ -94,9 +92,11 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	virtual void RecieveElement(EElementalStateType ReceivedElement, AActor* Instigator);
-	UFUNCTION()
-	void OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	EElementalStateType GetState() { return State; }
+
+	//UFUNCTION()
+	//void OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
 
 

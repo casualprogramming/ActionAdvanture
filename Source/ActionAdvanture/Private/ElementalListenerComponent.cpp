@@ -62,16 +62,12 @@ void UElementalListenerComponent::BeginPlay()
 	UPrimitiveComponent* Collider = Cast<UPrimitiveComponent>(GetAttachParent());//listener collider
 	conditionf(Collider,TEXT("Collider is not found. UElementalListenerComponent should be attached as a child of the UPrimitiveComponent"));
 	condition(Collider->GetCollisionProfileName() == "OverlapOnlyElementalEmitter");
-	Collider->OnComponentBeginOverlap.AddDynamic(this, &UElementalListenerComponent::OnListenerBeginOverlap);
 
-	/*TODO: If it is already overlapped at start time, it will not overlap.
-	* I used the trick, but it's not the right way.*/
-	FVector DefaultLocation = Collider->GetRelativeLocation();
-	float BigFloat = std::numeric_limits<float>::max()*0.5f;
-	Collider->SetRelativeLocation_Direct(FVector(-BigFloat, -BigFloat, -BigFloat));
-	FTimerDelegate Delegate;
-	Delegate.BindLambda([=] {Collider->SetRelativeLocation_Direct(DefaultLocation); });
-	GetWorld()->GetTimerManager().SetTimer(StartBeginOverlapTrickTimerHandle, Delegate, 0.01f, false);
+	/*RecieveElement is automatically called in OnComponentBeginOverlap of Emitter.
+	No need to register OnComponentBeginOverlap in Listener.
+	*/
+	//For Debug
+	//Collider->OnComponentBeginOverlap.AddDynamic(this, &UElementalListenerComponent::OnListenerBeginOverlap);
 }
 
 
@@ -92,20 +88,15 @@ void UElementalListenerComponent::RecieveElement(EElementalStateType InState, AA
 		auto const& EventFunc = StateChangeEventMap[Rule.ChangeType];
 		EventFunc(this);
 		State = Rule.NextState;
-		UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent StateChangeEvent %s: [%s] -> [%s], Recipient [%s] <- [%s]."), *UEnum::GetValueAsString(Rule.ChangeType), *UEnum::GetValueAsString(PreviousState.GetValue()), *UEnum::GetValueAsString(State.GetValue()), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
+		UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("StateChangeEvent"), *UEnum::GetValueAsString(Rule.ChangeType), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
 	}
 }
 
-//TODO: Generates an overlap event in only one of the listener and emitter.
-void UElementalListenerComponent::OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	condition(GetOwner());
-	UElementalEmitterComponent* OtherEmitter = OtherActor->FindComponentByClass<UElementalEmitterComponent>();
-	condition(OtherEmitter);
-	UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::Overlap. %s <- %s, Received Element %s <- %s "), *GetOwner()->GetName(), *OtherActor->GetName(), *UEnum::GetValueAsString(State.GetValue()), *UEnum::GetValueAsString(OtherEmitter->GetElement().GetValue()));
-
-	if(OtherEmitter)
-	{
-		RecieveElement(OtherEmitter->GetElement(), OtherActor->GetInstigator());
-	}
-}
+////TODO: Generates an overlap event in only one of the listener and emitter.
+//void UElementalListenerComponent::OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	condition(GetOwner());
+//	UElementalEmitterComponent* OtherEmitter = OtherActor->FindComponentByClass<UElementalEmitterComponent>();
+//	condition(OtherEmitter);
+//	UE_LOG(LogTemp, Log, TEXT("UElementalListenerComponent::Overlap. %s <- %s, Received Element %s <- %s "), *GetOwner()->GetName(), *OtherActor->GetName(), *UEnum::GetValueAsString(State.GetValue()), *UEnum::GetValueAsString(OtherEmitter->GetElement().GetValue()));
+//}
