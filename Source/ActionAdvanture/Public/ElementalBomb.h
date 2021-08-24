@@ -17,8 +17,8 @@ public:
 	// Sets default values for this actor's properties
 	AElementalBomb();
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	//class UExplosionComponent* ExplosionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class UExplosionComponent* ExplosionComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UStaticMeshComponent* StaticMeshComp;

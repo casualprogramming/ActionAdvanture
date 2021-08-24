@@ -28,9 +28,9 @@ AElementalBomb::AElementalBomb()
 	OngoingAudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
 	OngoingAudioComp->SetupAttachment(RootComponent);
 
-	//ExplosionComp = CreateDefaultSubobject<UExplosionComponent>("ExplosionComp");
-	//ExplosionComp->SetupAttachment(RootComponent);
-	//ExplosionComp->AutoActivateCollisionListener = false;
+	ExplosionComp = CreateDefaultSubobject<UExplosionComponent>("ExplosionComp");
+	ExplosionComp->SetupAttachment(RootComponent);
+	ExplosionComp->AutoActivateCollisionListener = false;
 
 	StaticMeshComp->SetSimulatePhysics(true);
 

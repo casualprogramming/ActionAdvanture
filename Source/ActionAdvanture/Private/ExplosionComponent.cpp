@@ -24,8 +24,10 @@ void UExplosionComponent::BeginPlay()
 	Super::BeginPlay();
 	Collider = GetOwner()->FindComponentByClass<UPrimitiveComponent>();
 	condition(Collider);
-	if(AutoActivateCollisionListener)
-		Collider->OnComponentBeginOverlap.AddDynamic(this, &UExplosionComponent::Explode);
+	if (AutoActivateCollisionListener)
+	{
+		ActivateCollisionListener();
+	}
 	// ...
 }
 
@@ -45,6 +47,7 @@ void UExplosionComponent::ActivateCollisionListener()
 	if (!Collider->OnComponentBeginOverlap.IsAlreadyBound(this, &UExplosionComponent::Explode))
 	{
 		Collider->OnComponentBeginOverlap.AddDynamic(this, &UExplosionComponent::Explode);
+		Collider->SetCollisionProfileName("OverlapAll");
 	}
 }
 
@@ -68,9 +71,9 @@ void UExplosionComponent::Explode_Implementation(UPrimitiveComponent* Overlapped
 	if (ensure(!GetOwner()->IsPendingKill()))
 	{
 		UE_LOG(LogTemp, Log, TEXT("overlap %s."), *OtherActor->GetName());
-		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetComponentLocation(), GetComponentRotation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetComponentLocation(), GetComponentRotation());
 
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetComponentLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetComponentLocation());
 
 		//		UGameplayStatics::PlayWorldCameraShake(this, ImpactShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
 
