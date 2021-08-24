@@ -120,6 +120,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void DeleteCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener);
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool IsRunning(FName ActionName);
+
 	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
 
 	template<typename T>

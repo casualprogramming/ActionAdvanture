@@ -16,10 +16,13 @@ void UMontageAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 	Super::Initialize(ActionSystemComponent);
 	OwnerMesh = GetOwner()->FindComponentByClass<USkeletalMeshComponent>();	condition(OwnerMesh);
 	OwnerAnim = OwnerMesh->GetAnimInstance(); condition(OwnerAnim);
-	CommitStopDelegate.BindWeakLambda(this, [&](class UAnimMontage* Montage, bool bInterrupted )
-		{
-			CommitStopAction(GetOwner(), bInterrupted);
-		});
+	if (StopAtMontageStop)
+	{
+		CommitStopDelegate.BindWeakLambda(this, [&](class UAnimMontage* Montage, bool bInterrupted )
+			{
+				CommitStopAction(GetOwner(), bInterrupted);
+			});
+	}
 	condition2(OwnerMesh, OwnerAnim);
 }
 
@@ -28,14 +31,18 @@ void UMontageAction::StartAction_Implementation(AActor* Instigator)
 	Super::StartAction_Implementation(Instigator);
 	condition(Montage);
 	OwnerAnim->Montage_Play(Montage, PlayRate);
-	OwnerAnim->Montage_SetEndDelegate(CommitStopDelegate, Montage);
+	if(StopAtMontageStop)
+		OwnerAnim->Montage_SetEndDelegate(CommitStopDelegate, Montage);//cancle delegate
 }
 
 void UMontageAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel); FOnMontageEnded EmptyFunction;
-	OwnerAnim->Montage_SetEndDelegate(EmptyFunction, Montage);//reset
-	GetOwnerAnim()->Montage_Stop(Montage->GetDefaultBlendOutTime(), Montage);
+	if (StopAtMontageStop)
+	{
+		OwnerAnim->Montage_SetEndDelegate(EmptyFunction, Montage);//reset
+		GetOwnerAnim()->Montage_Stop(Montage->GetDefaultBlendOutTime(), Montage);
+	}
 	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("%s : %s"), *GetActionName().ToString(), bCancel? TEXT("Cancel") : TEXT("Stop")));
 }
 

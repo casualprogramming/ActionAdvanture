@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	float PlayRate;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+	bool StopAtMontageStop = true;
+
 public:
 	UMontageAction();
 	UAnimInstance* GetOwnerAnim() { return OwnerAnim; }

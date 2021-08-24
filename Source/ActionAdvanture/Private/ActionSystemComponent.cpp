@@ -152,6 +152,11 @@ void UActionSystemComponent::DeleteCancelTagsListener(FGameplayTagContainer cons
 	}
 }
 
+bool UActionSystemComponent::IsRunning(FName ActionName)
+{
+	auto const& Action = Actions[ActionName]; return Action ? Action->IsRunning() : false;
+}
+
 void UActionSystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	CancelAllAction(GetOwner());

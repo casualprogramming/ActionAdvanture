@@ -122,6 +122,7 @@ public:
 	const FGameplayTagContainer& GetActiveTags() const{ return ActiveTags; }
 	const FGameplayTagContainer& GetRequiredTags() const { return RequiredTags; }
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool IsRunning() const{ return bIsRunning; };
 
 	UWorld* GetWorld() const override;
