@@ -154,7 +154,14 @@ void UActionSystemComponent::DeleteCancelTagsListener(FGameplayTagContainer cons
 
 bool UActionSystemComponent::IsRunning(FName ActionName)
 {
-	auto const& Action = Actions[ActionName]; return Action ? Action->IsRunning() : false;
+	conditionbf(Actions.Contains(ActionName), TEXT("Action: \"%s\" is not in ActionSystemComponent"), *ActionName.ToString());
+	return Actions[ActionName]->IsRunning();
+}
+
+bool UActionSystemComponent::CanStart(FName ActionName, AActor* Instigator)
+{
+	conditionbf(Actions.Contains(ActionName), TEXT("Action: \"%s\" is not in ActionSystemComponent"), *ActionName.ToString());
+	return Actions[ActionName]->CanStart(Instigator);
 }
 
 void UActionSystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

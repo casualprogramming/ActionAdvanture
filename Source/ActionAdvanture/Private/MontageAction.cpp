@@ -11,9 +11,9 @@ UMontageAction::UMontageAction()
 	PlayRate = 1.0f;
 }
 
-void UMontageAction::Initialize(UActionSystemComponent* ActionSystemComponent)
+void UMontageAction::Initialize_Implementation(UActionSystemComponent* ActionSystemComponent)
 {
-	Super::Initialize(ActionSystemComponent);
+	Super::Initialize_Implementation(ActionSystemComponent);
 	OwnerMesh = GetOwner()->FindComponentByClass<USkeletalMeshComponent>();	condition(OwnerMesh);
 	OwnerAnim = OwnerMesh->GetAnimInstance(); condition(OwnerAnim);
 	if (StopAtMontageStop)

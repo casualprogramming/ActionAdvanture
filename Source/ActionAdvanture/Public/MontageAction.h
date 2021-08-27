@@ -39,7 +39,7 @@ public:
 	UMontageAction();
 	UAnimInstance* GetOwnerAnim() { return OwnerAnim; }
 	USkeletalMeshComponent* GetOwnerMesh() { return OwnerMesh; }
-	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;
+	virtual void Initialize_Implementation(UActionSystemComponent* ActionSystemComponent) override;
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
 };

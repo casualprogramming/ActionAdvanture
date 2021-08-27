@@ -7,7 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "CommonUtils.h"
 
-void UAction::Initialize(UActionSystemComponent* ActionSystemComponent)
+void UAction::Initialize_Implementation(UActionSystemComponent* ActionSystemComponent)
 {
 	OwnerActionSystem = ActionSystemComponent;
 	Owner = ActionSystemComponent->GetOwner();
@@ -16,6 +16,7 @@ void UAction::Initialize(UActionSystemComponent* ActionSystemComponent)
 	//Init Child
 	for (auto& Child: ChildActionsClass)
 	{
+		conditionf(Child.ActionClass);
 		auto const& Default = Child.ActionClass.GetDefaultObject();
 		FName ChildActionName;
 		if (Child.bInstancingWithParentName)

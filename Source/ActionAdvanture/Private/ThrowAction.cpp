@@ -15,11 +15,6 @@ UThrowAction::UThrowAction()
 	//RequiredTags.AddTag("Grab");
 }
 
-void UThrowAction::Initialize(UActionSystemComponent* ActionSystemComponent)
-{
-	Super::Initialize(ActionSystemComponent);
-}
-
 bool UThrowAction::CanStart_Implementation(AActor* Instigator)
 {
 	if(!Super::CanStart_Implementation(Instigator)) return false;

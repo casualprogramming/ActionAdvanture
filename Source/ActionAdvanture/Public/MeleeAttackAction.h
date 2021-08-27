@@ -30,7 +30,7 @@ private:
 
 public:
 	UMeleeAttackAction();
-	virtual void Initialize(UActionSystemComponent* ActionSystemComponent) override;
+	virtual void Initialize_Implementation(UActionSystemComponent* ActionSystemComponent) override;
 	virtual bool CanStart_Implementation(AActor* Instigator) override;
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;

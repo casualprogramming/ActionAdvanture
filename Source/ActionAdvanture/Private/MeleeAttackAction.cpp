@@ -15,9 +15,9 @@ UMeleeAttackAction::UMeleeAttackAction()
 }
 
 
-void UMeleeAttackAction::Initialize(UActionSystemComponent* ActionSystemComponent)
+void UMeleeAttackAction::Initialize_Implementation(UActionSystemComponent* ActionSystemComponent)
 {
-	Super::Initialize(ActionSystemComponent);
+	Super::Initialize_Implementation(ActionSystemComponent);
 	TArray<UActorComponent*> Components = GetOwner()->GetComponentsByTag(UPrimitiveComponent::StaticClass(), MeleeColliderComponentTag);
 	conditionf(Components.Num() == 1,TEXT("The UPrimitiveComponent variable \"MeleeAttackCollider\" is %s. Make sure %s have one UPrimitiveComponent with Tag %s."), Components.Num()? TEXT("duplicated"): TEXT("empty"), *GetOwner()->GetName(), *MeleeColliderComponentTag.ToString());
 	MeleeAttackCollider = Cast<UPrimitiveComponent>(Components[0]);

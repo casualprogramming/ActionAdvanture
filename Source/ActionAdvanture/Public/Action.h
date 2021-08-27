@@ -103,7 +103,8 @@ public:
 	//Rename forcibly when you want to use an instance different from the class default.
 	void SetActionName(FName name) { ActionName = name; }
 
-	virtual void Initialize(UActionSystemComponent* ActionSystemComponent);
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	void Initialize(UActionSystemComponent* ActionSystemComponent);
 
 	UFUNCTION(BlueprintPure, Category = "Action")
 	FName GetActionName() const { return ActionName; };
