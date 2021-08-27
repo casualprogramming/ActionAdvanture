@@ -82,7 +82,7 @@ void UTelekinesisAction::StopAction_Implementation(AActor* Instigator, bool bCan
 	//	HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	//}
 	HitActorCollider->SetSimulatePhysics(true);
-
+	HitActorCollider->SetPhysicsLinearVelocity(FVector(0));
 	//Stop
 	if (bCancel == false)
 	{

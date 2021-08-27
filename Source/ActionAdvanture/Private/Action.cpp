@@ -16,7 +16,7 @@ void UAction::Initialize_Implementation(UActionSystemComponent* ActionSystemComp
 	//Init Child
 	for (auto& Child: ChildActionsClass)
 	{
-		conditionf(Child.ActionClass);
+		condition(Child.ActionClass);
 		auto const& Default = Child.ActionClass.GetDefaultObject();
 		FName ChildActionName;
 		if (Child.bInstancingWithParentName)
