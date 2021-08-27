@@ -32,7 +32,7 @@ void UMontageAction::StartAction_Implementation(AActor* Instigator)
 	condition(Montage);
 	OwnerAnim->Montage_Play(Montage, PlayRate);
 	if(StopAtMontageStop)
-		OwnerAnim->Montage_SetEndDelegate(CommitStopDelegate, Montage);//cancle delegate
+		OwnerAnim->Montage_SetBlendingOutDelegate(CommitStopDelegate, Montage);//cancle delegate
 }
 
 void UMontageAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
@@ -40,7 +40,7 @@ void UMontageAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 	Super::StopAction_Implementation(Instigator, bCancel); FOnMontageEnded EmptyFunction;
 	if (StopAtMontageStop)
 	{
-		OwnerAnim->Montage_SetEndDelegate(EmptyFunction, Montage);//reset
+		OwnerAnim->Montage_SetBlendingOutDelegate(EmptyFunction, Montage);//reset
 		GetOwnerAnim()->Montage_Stop(Montage->GetDefaultBlendOutTime(), Montage);
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("%s : %s"), *GetActionName().ToString(), bCancel? TEXT("Cancel") : TEXT("Stop")));

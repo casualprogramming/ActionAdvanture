@@ -2,6 +2,7 @@
 
 
 #include "AttributeComponent.h"
+#include "ActionSystemComponent.h"
 
 // Sets default values for this component's properties
 UAttributeComponent::UAttributeComponent()
@@ -42,5 +43,8 @@ void UAttributeComponent::AddSP(AActor* Instigator, float SP_)
 void UAttributeComponent::OnHealthZero_Internal(AActor* Instigator)
 {
 	OnHealthZero.Broadcast(Instigator);
-	GetOwner()->SetLifeSpan(4.0f);
+	UActionSystemComponent* ActionSystem = GetOwner()->FindComponentByClass<UActionSystemComponent>();
+	if(ActionSystem)
+		ActionSystem->StartActionByName("DieAction", GetOwner());
+	//GetOwner()->SetLifeSpan(4.0f);
 }
