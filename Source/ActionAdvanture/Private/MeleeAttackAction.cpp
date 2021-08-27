@@ -21,9 +21,6 @@ void UMeleeAttackAction::Initialize_Implementation(UActionSystemComponent* Actio
 	TArray<UActorComponent*> Components = GetOwner()->GetComponentsByTag(UPrimitiveComponent::StaticClass(), MeleeColliderComponentTag);
 	conditionf(Components.Num() == 1,TEXT("The UPrimitiveComponent variable \"MeleeAttackCollider\" is %s. Make sure %s have one UPrimitiveComponent with Tag %s."), Components.Num()? TEXT("duplicated"): TEXT("empty"), *GetOwner()->GetName(), *MeleeColliderComponentTag.ToString());
 	MeleeAttackCollider = Cast<UPrimitiveComponent>(Components[0]);
-	condition(MeleeAttackCollider);
-	MeleeAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeAttackCollider->OnComponentBeginOverlap.AddDynamic(this, &UMeleeAttackAction::OnMeleeAttackOverlap);
 }
 
 bool UMeleeAttackAction::CanStart_Implementation(AActor* Instigator)
@@ -36,7 +33,10 @@ bool UMeleeAttackAction::CanStart_Implementation(AActor* Instigator)
 
 void UMeleeAttackAction::StartAction_Implementation(AActor* Instigator)
 {
+	MeleeAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Super::StartAction_Implementation(Instigator);
+	condition(MeleeAttackCollider);
+	MeleeAttackCollider->OnComponentBeginOverlap.AddDynamic(this, &UMeleeAttackAction::OnMeleeAttackOverlap);
 	GetOwnerActionSystem()->GetEventDelegate(EnableMeleeAttackCollisionEventTag.GetTagName()).AddDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
 	GetOwnerActionSystem()->GetEventDelegate(DisableMeleeAttackCollisionEventTag.GetTagName()).AddDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
 }
@@ -44,9 +44,8 @@ void UMeleeAttackAction::StartAction_Implementation(AActor* Instigator)
 void UMeleeAttackAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 {
 	Super::StopAction_Implementation(Instigator, bCancel);
-	
 	MeleeAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	MeleeAttackCollider->OnComponentBeginOverlap.RemoveDynamic(this, &UMeleeAttackAction::OnMeleeAttackOverlap);
 	GetOwnerActionSystem()->GetEventDelegate(EnableMeleeAttackCollisionEventTag.GetTagName()).RemoveDynamic(this, &UMeleeAttackAction::OnEventEnableMeleeAttackCollision);
 	GetOwnerActionSystem()->GetEventDelegate(DisableMeleeAttackCollisionEventTag.GetTagName()).RemoveDynamic(this, &UMeleeAttackAction::OnEventDisableMeleeAttackCollision);
 }
