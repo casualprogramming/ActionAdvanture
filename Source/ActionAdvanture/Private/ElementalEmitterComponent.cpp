@@ -22,30 +22,36 @@ void UElementalEmitterComponent::BeginPlay()
 	EmitterCollider = Cast<UPrimitiveComponent>(GetAttachParent());//Emitter Collider
 	conditionf(EmitterCollider, TEXT("Collider is not found. UElementalListenerComponent should be attached as a child of the UPrimitiveComponent"));
 	conditionf(EmitterCollider->GetCollisionProfileName() == "OverlapOnlyElementalListner", TEXT("Check Actor %s"), *GetOwner()->GetName());
-	if (bAutoActivateInComponentBeginplay)
-		EmitterCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	else
-		EmitterCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	EmitterCollider->OnComponentBeginOverlap.AddDynamic(this, &UElementalEmitterComponent::OnEmitterBeginOverlap);
+	//if (bAutoActivateInComponentBeginplay)
+	//	EmitterCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//else
+	//	EmitterCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+	EmitterCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	EmitterCollider->OnComponentBeginOverlap.AddDynamic(this, &UElementalEmitterComponent::OnEmitterBeginOverlap);
+
+	if (bAutoActivateInComponentBeginplay)
+	{
+		ActivateElement();
+	}
+
 	/*TODO:
 	* If it is already overlapped at start time, it will not generate overlap event.
 	* I used the trick, but it's not the right way.*/
 	
 	//Initial Overlaps
-	if (EmitterCollider->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
-	{
-		TArray<FOverlapResult> Hits;
-		EmitterCollider->ComponentOverlapMulti(Hits,GetWorld(), EmitterCollider->GetComponentLocation(), EmitterCollider->GetComponentRotation(),ECollisionChannel::ECC_GameTraceChannel2);
-		for (auto const& Hit: Hits)
-		{
-			UElementalListenerComponent* OtherListener = Hit.GetActor()->FindComponentByClass<UElementalListenerComponent>();
-			condition(OtherListener);
-			UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("BeginPlay Emit"), *UEnum::GetValueAsString(Element), *GetOwner()->GetName(), *Hit.GetActor()->GetName());
-			OtherListener->RecieveElement(Element, GetOwner());
-		}
-	}
+	//if (EmitterCollider->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+	//{
+	//	TArray<FOverlapResult> Hits;
+	//	EmitterCollider->ComponentOverlapMulti(Hits,GetWorld(), EmitterCollider->GetComponentLocation(), EmitterCollider->GetComponentRotation(),ECollisionChannel::ECC_GameTraceChannel2);
+	//	for (auto const& Hit: Hits)
+	//	{
+	//		UElementalListenerComponent* OtherListener = Hit.GetActor()->FindComponentByClass<UElementalListenerComponent>();
+	//		condition(OtherListener);
+	//		UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("BeginPlay Emit"), *UEnum::GetValueAsString(Element), *GetOwner()->GetName(), *Hit.GetActor()->GetName());
+	//		OtherListener->RecieveElement(Element, GetOwner());
+	//	}
+	//}
 }
 
 
@@ -67,8 +73,23 @@ void UElementalEmitterComponent::OnEmitterBeginOverlap(UPrimitiveComponent* Over
 }
 
 
-void UElementalEmitterComponent::ActivateElement(TEnumAsByte<EElementalStateType> InElement)
+void UElementalEmitterComponent::ActivateElement()
 {
-	Element = InElement;
-	Activate(false);
+	if (Period > 0.0f)
+	{
+		FTimerDelegate Delegate;
+		Delegate.BindWeakLambda(this, [&]()
+			{
+				EmitterCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				EmitterCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			}
+		);
+		GetWorld()->GetTimerManager().SetTimer(PeriodTimerHandle, Delegate, Period, true);
+	}
+}
+
+void UElementalEmitterComponent::DeactivateElement()
+{
+	GetWorld()->GetTimerManager().ClearTimer(PeriodTimerHandle);
+	EmitterCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

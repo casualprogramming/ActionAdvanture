@@ -26,7 +26,7 @@ const std::array<std::array<EElementalChangeData, ElementalStateTypeCount>, Elem
 	Rules[Ice][Water]	= { Ice, NO_CHANGE };							//no change
 						  
 	Rules[Water][None]	= { Water, NO_CHANGE };							//no change
-	Rules[Water][Fire]	= { Water, NO_CHANGE };							//no change
+	Rules[Water][Fire]	= { None, DRY};									//dry
 	Rules[Water][Ice]	= { Ice, FROZEN };								//frozen
 	Rules[Water][Water] = { Water, NO_CHANGE };							//no change
 	return Rules;
@@ -41,6 +41,7 @@ const std::array<std::function<void(UElementalListenerComponent*)>, ElementalCha
 	EvemtMap[MELT] = &UElementalListenerComponent::Melt;
 	EvemtMap[FROZEN] = &UElementalListenerComponent::Frozen;
 	EvemtMap[EXTINGUISHED] = &UElementalListenerComponent::Extinguished;
+	EvemtMap[DRY] = &UElementalListenerComponent::Dry;
 	return EvemtMap;
 }();
 

@@ -39,11 +39,11 @@ void AElementalEmitter::Tick(float DeltaTime)
 void AElementalEmitter::ActivateEmitter()
 {
 	EmitterParticle->Activate();
-	ElementalEmitterComp->Activate();//automatic Activate ElementalEmitterCollider
+	ElementalEmitterComp->ActivateElement();//automatic Activate ElementalEmitterCollider
 }
 
 void AElementalEmitter::DeactivateEmitter()
 {
 	EmitterParticle->Deactivate();
-	ElementalEmitterComp->Deactivate();//automatic Deactivate ElementalEmitterCollider
+	ElementalEmitterComp->DeactivateElement();//automatic Deactivate ElementalEmitterCollider
 }

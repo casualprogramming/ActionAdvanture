@@ -26,6 +26,7 @@ enum EElementalChangeType
 	FROZEN,
 	WET,
 	EXTINGUISHED,
+	DRY,
 	
 	ElementalChangeTypeCount,
 };
@@ -54,6 +55,7 @@ public:
 	static void Frozen(UElementalListenerComponent* Self) { Self->OnFrozen.Broadcast(); };
 	static void Wet(UElementalListenerComponent* Self) { Self->OnWet.Broadcast(); };
 	static void Extinguished(UElementalListenerComponent* Self) { Self->OnExtinguished.Broadcast(); };
+	static void Dry(UElementalListenerComponent* Self) { Self->OnDry.Broadcast(); };
 
 public:	
 	// Sets default values for this component's properties
@@ -89,6 +91,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "ElementalListener")
 	FOnElementalStateChangedNoParam OnExtinguished;//[Fire, Water] -> Extinguished
+
+	UPROPERTY(BlueprintAssignable, Category = "ElementalListener")
+	FOnElementalStateChangedNoParam OnDry;//[Water, Fire] -> Dry
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

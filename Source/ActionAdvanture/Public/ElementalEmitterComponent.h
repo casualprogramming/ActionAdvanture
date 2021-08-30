@@ -33,6 +33,11 @@ protected:
 
 	FTimerHandle StartBeginOverlapTrickTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmitterElement")
+	float Period =0.5f;
+
+	FTimerHandle PeriodTimerHandle;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -41,7 +46,11 @@ public:
 	virtual void OnEmitterBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
-	void ActivateElement(TEnumAsByte<EElementalStateType> InElement);
+	void ActivateElement();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactivateElement();
+	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override { Super::EndPlay(EndPlayReason); GetWorld()->GetTimerManager().ClearTimer(StartBeginOverlapTrickTimerHandle); };
 
 	UFUNCTION(BlueprintCallable)
