@@ -88,12 +88,20 @@ void UElementalListenerComponent::RecieveElement(EElementalStateType InState, AA
 	if (!IgnoreMap.Contains(Rule.ChangeType) && Rule.ChangeType != NO_CHANGE)
 	{
 		auto PreviousState = CurrentState;
+		StateChangeBegin(CurrentState,Rule.NextState,Rule.ChangeType,Instigator);
 		auto const& EventFunc = StateChangeEventMap[Rule.ChangeType];
 		EventFunc(this);
 		CurrentState = Rule.NextState;
 		UE_LOG(LogTemp, Log, TEXT("%-16s |%12s|. %20s -> %-20s"), TEXT("StateChangeEvent"), *UEnum::GetValueAsString(Rule.ChangeType), *GetOwner()->GetName(), Instigator ? *Instigator->GetName() : TEXT("null"));
 	}
 }
+
+void UElementalListenerComponent::StateChangeBegin(EElementalStateType State, EElementalStateType NextState, EElementalChangeType ChangeType, AActor* Instigator)
+{
+
+}
+
+
 
 ////TODO: Generates an overlap event in only one of the listener and emitter.
 //void UElementalListenerComponent::OnListenerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
