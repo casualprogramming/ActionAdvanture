@@ -92,7 +92,6 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 			{
 				Child.Action->StartAction(Instigator);
 			}
-			//already checked yet
 			else
 			{
 				if (Child.Action->CanStart(Instigator))

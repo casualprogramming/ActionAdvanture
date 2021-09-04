@@ -3,6 +3,7 @@
 
 #include "AttributeComponent.h"
 #include "ActionSystemComponent.h"
+#include "CommonUtils.h"
 
 // Sets default values for this component's properties
 UAttributeComponent::UAttributeComponent()
@@ -47,4 +48,10 @@ void UAttributeComponent::OnHealthZero_Internal(AActor* Instigator)
 	if(ActionSystem)
 		ActionSystem->StartActionByName("DieAction", GetOwner());
 	//GetOwner()->SetLifeSpan(4.0f);
+}
+
+UAttributeComponent* UAttributeComponent::GetAttribute(AActor* FromActor)
+{
+	condition_return(FromActor,nullptr);
+	return Cast<UAttributeComponent>(FromActor->GetComponentByClass(UAttributeComponent::StaticClass()));
 }

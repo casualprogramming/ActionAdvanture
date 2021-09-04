@@ -19,6 +19,9 @@ public:
 	// Sets default values for this component's properties
 	UAttributeComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	static class UAttributeComponent* GetAttribute(AActor* FromActor);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -29,17 +32,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
 	float MaxSP;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "Attributes")
 	float HP;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "Attributes")
 	float SP;
 
 	void OnHealthZero_Internal(AActor* Instigator);
 
 public:	
-
+	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChanged OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChanged OnStaminaChanged;
 	FOnHealthZero OnHealthZero;
 	// Called every frame
