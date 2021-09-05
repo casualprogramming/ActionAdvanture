@@ -6,6 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "ExplosionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnExplodedSignature, UPrimitiveComponent*, OverlappedComponent, AActor*, OtherActor, UPrimitiveComponent*, OtherComp, int32, OtherBodyIndex, bool, bFromSweep, const FHitResult&, SweepResult);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONADVANTURE_API UExplosionComponent : public USceneComponent
@@ -20,13 +21,16 @@ public:
 	class UParticleSystem* ImpactVFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
-	class USoundCue* ImpactSound;
+	class USoundBase* ImpactSound;
 
 	UPROPERTY(VisibleAnywhere, Category = "Explosion")
 	UPrimitiveComponent* Collider;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	bool AutoActivateCollisionListener = true;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnExplodedSignature OnExploded;
 
 protected:
 	// Called when the game starts
@@ -39,6 +43,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Explode(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
+	UFUNCTION()
+	void OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	void ActivateCollisionListener();
 	void DeactivateCollisionListener();
 };

@@ -22,7 +22,7 @@ UExplosionComponent::UExplosionComponent()
 void UExplosionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Collider = GetOwner()->FindComponentByClass<UPrimitiveComponent>();
+	Collider = Cast<UPrimitiveComponent>(GetAttachParent());
 	condition(Collider);
 	if (AutoActivateCollisionListener)
 	{
@@ -44,9 +44,9 @@ void UExplosionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UExplosionComponent::ActivateCollisionListener()
 {
 	condition(Collider);
-	if (!Collider->OnComponentBeginOverlap.IsAlreadyBound(this, &UExplosionComponent::Explode))
+	if (!Collider->OnComponentBeginOverlap.IsAlreadyBound(this, &UExplosionComponent::OnColliderBeginOverlap))
 	{
-		Collider->OnComponentBeginOverlap.AddDynamic(this, &UExplosionComponent::Explode);
+		Collider->OnComponentBeginOverlap.AddDynamic(this, &UExplosionComponent::OnColliderBeginOverlap);
 		Collider->SetCollisionProfileName("OverlapAll");
 	}
 }
@@ -54,31 +54,33 @@ void UExplosionComponent::ActivateCollisionListener()
 void UExplosionComponent::DeactivateCollisionListener()
 {
 	condition(Collider);
-	Collider->OnComponentBeginOverlap.RemoveDynamic(this, &UExplosionComponent::Explode);
+	Collider->OnComponentBeginOverlap.RemoveDynamic(this, &UExplosionComponent::OnColliderBeginOverlap);
 }
 
-void UExplosionComponent::Explode_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UExplosionComponent::OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	condition(GetOwner());
-
+	//Self Collision
 	if (GetOwner()->GetInstigator() == OtherActor)
 	{
 		return;
 	}
-
-	// Check to make sure we aren't already being 'destroyed'
-	// Adding ensure to see if we encounter this situation at all
-	if (ensure(!GetOwner()->IsPendingKill()))
+	if (ensure(IsValid(GetOwner())))
 	{
-		UE_LOG(LogTemp, Log, TEXT("overlap %s."), *OtherActor->GetName());
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetComponentLocation(), GetComponentRotation());
-
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetComponentLocation());
-
-		//		UGameplayStatics::PlayWorldCameraShake(this, ImpactShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
-
-		GetOwner()->Destroy();
+		Explode(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	}
+}
+
+void UExplosionComponent::Explode_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetComponentLocation(), GetComponentRotation());
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetComponentLocation());
+
+	//		UGameplayStatics::PlayWorldCameraShake(this, ImpactShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
+	OnExploded.Broadcast(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
+	GetOwner()->Destroy();
 }
 
 
