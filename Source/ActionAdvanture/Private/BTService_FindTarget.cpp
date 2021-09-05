@@ -30,15 +30,19 @@ void UBTService_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(Self);
 	
-	FHitResult Hit;
-	bool bSweep = GetWorld()->SweepSingleByObjectType(Hit, Origin, Origin, FQuat::Identity, ObjectType.GetValue(), FCollisionShape::MakeSphere(FindRange), params);
+	//FHitResult Hit;
+	//bool bSweep = GetWorld()->SweepSingleByObjectType(Hit, Origin, Origin, FQuat::Identity, ObjectType.GetValue(), FCollisionShape::MakeSphere(FindRange), params);
 	
-	BlackBoardComp->SetValueAsObject(TargetActorKey.SelectedKeyName, Hit.GetActor());
+	TArray<FHitResult> Hits;
+	GetWorld()->SweepMultiByObjectType(Hits, Origin, Origin, FQuat::Identity, ObjectType.GetValue(), FCollisionShape::MakeSphere(FindRange), params);
 
 #if ENABLE_DRAW_DEBUG
-	FColor	DrawColor = bSweep ? FColor::Red : FColor::Green;
+	FColor	DrawColor = Hits.Num()==0 ? FColor::Red : FColor::Green;
 	DrawDebugSphere(GetWorld(), Origin, FindRange, 20, DrawColor, false, 0.3f);
 #endif
+
+	for (auto const& Hit : Hits) 
+	{
 
 	AActor* Target = Hit.GetActor();
 
@@ -64,6 +68,9 @@ void UBTService_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 			}
 		}
 	}
+
+	}
+
 
 	BlackBoardComp->SetValueAsObject(TargetActorKey.SelectedKeyName, nullptr);
 }
