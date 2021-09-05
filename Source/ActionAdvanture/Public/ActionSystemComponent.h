@@ -126,6 +126,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool CanStart(FName ActionName, AActor* Instigator = nullptr);
 	
+	UFUNCTION(BlueprintCallable, Category = "Action")
 	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
 
 	template<typename T>
