@@ -22,6 +22,14 @@ void UBTService_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	condition2(Self, BlackBoardComp);
 
+	//Release Target (out of range)
+	AActor* CurrentTarget=Cast<AActor>(BlackBoardComp->GetValueAsObject(TargetActorKey.SelectedKeyName));
+	if (IsValid(CurrentTarget) && (CurrentTarget->GetActorLocation()-Self->GetActorLocation()).Size() >FindRange)
+	{
+		BlackBoardComp->SetValueAsObject(TargetActorKey.SelectedKeyName, nullptr);
+	}
+
+	//Update Target If can see
 
 	//Find Actor in Range
 	FVector const Direction = Self->GetActorForwardVector();
@@ -72,5 +80,4 @@ void UBTService_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	}
 
 
-	BlackBoardComp->SetValueAsObject(TargetActorKey.SelectedKeyName, nullptr);
 }
