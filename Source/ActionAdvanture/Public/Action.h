@@ -132,9 +132,9 @@ public:
 	UPROPERTY()
 	UCooldownAction* ChildCooldownAction;
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void AddCooldown(float CooldownDuration);
+	void AddCooldown(float CooldownDuration, bool bActorTimer = false);
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	void StartCooldown(float CooldownDuration);
+	void StartCooldown(float CooldownDuration, bool bActorTimer = false);
 };
 
 

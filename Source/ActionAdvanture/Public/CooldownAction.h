@@ -21,11 +21,13 @@ protected:
 	FTimerHandle DurationHandle;
 
 	float TimeStarted;
+
+	bool bActorTimer=false;
 public:
 
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator, bool bCancel) override;
-	void AddCooldownDuration(float CooldownDuration);
-	void StartCooldownDuration(float CooldownDuration);
+	void AddCooldownDuration(float CooldownDuration, bool ActorTimer=false);
+	void StartCooldownDuration(float CooldownDuration, bool ActorTimer=false);
 	float GetTimeRemaining() const;
 };

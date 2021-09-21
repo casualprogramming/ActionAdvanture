@@ -131,13 +131,12 @@ UCooldownAction* UAction::GetorAddChildCooldownHelperAction()
 	}
 	return ChildCooldownAction;
 }
-void UAction::AddCooldown(float CooldownDuration)
+void UAction::AddCooldown(float CooldownDuration, bool bActorTimer)
 {
-	GetorAddChildCooldownHelperAction()->AddCooldownDuration(CooldownDuration);
+	GetorAddChildCooldownHelperAction()->AddCooldownDuration(CooldownDuration, bActorTimer);
 }
 
-void UAction::StartCooldown(float CooldownDuration)
+void UAction::StartCooldown(float CooldownDuration, bool bActorTimer)
 {
-	GetorAddChildCooldownHelperAction()->StartCooldownDuration(CooldownDuration);
-
+	GetorAddChildCooldownHelperAction()->StartCooldownDuration(CooldownDuration, bActorTimer);
 }
