@@ -82,6 +82,10 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 	OwnerActionSystem->ActivateTags(ActiveTags);
 	OwnerActionSystem->AddCancelTagsListener(CanceledTags, this);
 	OwnerActionSystem->CancelActionByTags(ActiveCancelTags, GetOwner());
+
+	for (auto const& Event : EventsDuringRunning)
+		OwnerActionSystem->BindEventUnsafe(Event.Key, Event.Value);
+
 	//Start Child
 	for (auto const& Child : ChildActionsClass)
 	{
@@ -108,6 +112,9 @@ void UAction::StopAction_Implementation(AActor* Instigator, bool bCancel)
 	OwnerActionSystem->DeactivateTags(ActiveTags);
 	OwnerActionSystem->DeleteCancelTagsListener(CanceledTags, this);
 
+	for (auto const& Event : EventsDuringRunning)
+		OwnerActionSystem->DeleteEvent(Event.Key, Event.Value);
+	EventsDuringRunning.Empty(EventsDuringRunning.GetAllocatedSize());
 	//Stop Child
 	for (auto const& Child : ChildActionsClass)
 		if(Child.bSyncActionStopWithParent)
@@ -139,4 +146,14 @@ void UAction::AddCooldown(float CooldownDuration, bool bActorTimer)
 void UAction::StartCooldown(float CooldownDuration, bool bActorTimer)
 {
 	GetorAddChildCooldownHelperAction()->StartCooldownDuration(CooldownDuration, bActorTimer);
+}
+
+void UAction::BindEventDuringRunning(FName EventName, FOnCustomEvent const& Event)
+{
+	EventsDuringRunning.Emplace(EventName, Event); if (IsRunning()) OwnerActionSystem->BindEventUnsafe(EventName, Event);
+}
+
+void UAction::UnBindEventDuringRunning(FName EventName, FOnCustomEvent const& Event)
+{
+	if (IsRunning()) OwnerActionSystem->DeleteEvent(EventName, Event); EventsDuringRunning.RemoveSingle(TPair<FName, FOnCustomEvent>(EventName, Event));
 }

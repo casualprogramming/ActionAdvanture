@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "NewBlueprintFunctionLibrary.h"
 #include "Action.generated.h"
 
 /**
@@ -135,6 +136,13 @@ public:
 	void AddCooldown(float CooldownDuration, bool bActorTimer = false);
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void StartCooldown(float CooldownDuration, bool bActorTimer = false);
+
+	TArray<TPair<FName, FOnCustomEvent>> EventsDuringRunning;
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void BindEventDuringRunning(FName EventName, FOnCustomEvent const& Event);
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void UnBindEventDuringRunning(FName EventName, FOnCustomEvent const& Event);
 };
 
 

@@ -10,7 +10,6 @@
 class UAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionCustomEvents, AActor*, Instigator);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnCustomEvent, AActor*, Instigator);
 
 /** (It was possible to compile without using a wrapping class and there was no problem at runtime, but the crash occurred when the megascan plugin was put, and it was fixed to wrapping class.)
  *  Warpping Class for Action Event delegate to be stored in TMap
