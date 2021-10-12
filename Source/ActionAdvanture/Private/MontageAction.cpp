@@ -23,7 +23,6 @@ void UMontageAction::Initialize_Implementation(UActionSystemComponent* ActionSys
 				CommitStopAction(GetOwner(), bInterrupted);
 			});
 	}
-	condition2(OwnerMesh, OwnerAnim);
 }
 
 void UMontageAction::StartAction_Implementation(AActor* Instigator)

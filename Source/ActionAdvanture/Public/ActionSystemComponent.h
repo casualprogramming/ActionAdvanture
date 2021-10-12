@@ -120,13 +120,13 @@ public:
 	void DeleteCancelTagsListener(FGameplayTagContainer const& CancelTags, UAction* Listener);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool IsRunning(FName ActionName);
+	bool IsRunning(FName ActionName) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool CanStart(FName ActionName, AActor* Instigator = nullptr);
+	bool CanStart(FName ActionName, AActor* Instigator = nullptr) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	UAction* GetAction(FName ActionName) const { return Actions[ActionName]; }
+	UAction* GetAction(FName ActionName) const;
 
 	template<typename T>
 	T* GetAction() const { return Cast<T>(Actions[T::StaticClass()->GetDefaultObject<T>()->GetActionName()]); }

@@ -19,10 +19,10 @@ class ACTIONADVANTURE_API UNewBlueprintFunctionLibrary : public UBlueprintFuncti
 public:
 	/*It is better not to expose this function, 
 	 *but it is often used because the blueprint class defaults value for UObject (UAction) is not visible.*/
-	UFUNCTION(BlueprintCallable, Category = "NewBlueprintFunction")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "NewBlueprintFunction")
 	static UAction* GetDefaultActionClass(TSubclassOf<UAction> Class);
 
-	UFUNCTION(BlueprintCallable, Category = "NewBlueprintFunction")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "NewBlueprintFunction")
 	static FName GetDefaultActionName(TSubclassOf<UAction> Class);
 
 };
